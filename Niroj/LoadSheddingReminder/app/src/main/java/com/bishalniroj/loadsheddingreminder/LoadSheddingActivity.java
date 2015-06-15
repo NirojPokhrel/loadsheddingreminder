@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.Button;
 
 
 public class LoadSheddingActivity extends ActionBarActivity {
@@ -20,7 +21,7 @@ public class LoadSheddingActivity extends ActionBarActivity {
         setContentView(R.layout.activity_load_shedding);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new LandingPageFragment())
                     .commit();
         }
     }
@@ -51,16 +52,41 @@ public class LoadSheddingActivity extends ActionBarActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class LandingPageFragment extends Fragment {
+        private Button mBtnSelectArea, mBtnAdjustReminder, mBtnViewSchedule;
 
-        public PlaceholderFragment() {
+        public LandingPageFragment() {
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_load_shedding, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_landing_page, container, false);
+            mBtnSelectArea = (Button) rootView.findViewById(R.id.selectArea);
+            mBtnAdjustReminder = (Button) rootView.findViewById(R.id.adjustReminder);
+            mBtnViewSchedule = (Button) rootView.findViewById(R.id.viewSchedule);
+
+            mBtnViewSchedule.setOnClickListener(mOnClickListener);
+            mBtnAdjustReminder.setOnClickListener(mOnClickListener);
+            mBtnViewSchedule.setOnClickListener(mOnClickListener);
+
             return rootView;
         }
+
+        private View.OnClickListener mOnClickListener = new View.OnClickListener() {
+            @Override
+             public void onClick(View view) {
+                switch(view.getId()) {
+                    case R.id.selectArea:
+                        break;
+                    case R.id.adjustReminder:
+                        break;
+                    case R.id.viewSchedule:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
     }
 }
