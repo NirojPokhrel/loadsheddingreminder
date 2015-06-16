@@ -8,5 +8,6 @@
     <string name="landing_page_option1">Adjust Reminder</string>
     <string name="landing_page_option2">Select Area</string>
     <string name="landing_page_option3">View Schedule</string>
+    <string name="select_area">Select Your Area</string>
     <string name="title_activity_select_area">Select Your Area</string>
 </resources>

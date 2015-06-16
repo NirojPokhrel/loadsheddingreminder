@@ -1,5 +1,7 @@
 package com.bishalniroj.loadsheddingreminder;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -14,10 +16,13 @@ import android.widget.Button;
 
 
 public class LoadSheddingActivity extends ActionBarActivity {
+    private static Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mContext = this;
         setContentView(R.layout.activity_load_shedding);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -78,6 +83,8 @@ public class LoadSheddingActivity extends ActionBarActivity {
              public void onClick(View view) {
                 switch(view.getId()) {
                     case R.id.selectArea:
+                        Intent intent = new Intent( mContext, SelectArea.class );
+                        startActivity(intent);
                         break;
                     case R.id.adjustReminder:
                         break;
