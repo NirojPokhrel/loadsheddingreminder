@@ -8,6 +8,11 @@
     <string name="landing_page_option1">Adjust Reminder</string>
     <string name="landing_page_option2">Select Area</string>
     <string name="landing_page_option3">View Schedule</string>
-    <string name="select_area">Select Your Area</string>
+    <string name="select_area">Select Area</string>
     <string name="title_activity_select_area">Select Your Area</string>
+    <string name="title_activity_time_picker">TimePicker</string>
+    <string name="description_time_picker">Please pick the time before
+        which you want to get alarm before the next load shedding.</string>
+    <string name="set_time">Click to set Time</string>
+    <string name="title_activity_view_schedule">ViewScheduleActivity</string>
 </resources>

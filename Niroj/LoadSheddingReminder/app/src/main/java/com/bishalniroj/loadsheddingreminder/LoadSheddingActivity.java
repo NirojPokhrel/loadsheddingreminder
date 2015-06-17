@@ -55,17 +55,23 @@ public class LoadSheddingActivity extends Activity {
         private View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
              public void onClick(View view) {
+                Intent intent;
                 Utilities.Logd("onClick()");
                 switch(view.getId()) {
                     case R.id.selectArea:
                         Utilities.Logd("Clicked select area");
-                        Intent intent = new Intent( mContext, SelectArea.class );
+                        intent = new Intent( mContext, SelectArea.class );
                         startActivityForResult(intent, Utilities.REQUEST_CODE_SELECT_AREA);
                         break;
-                    case R.id.adjustReminder:
+                    case R.id.adjustReminder: {
+                        intent = new Intent( mContext, CustomTimePicker.class );
+                        startActivity(intent);
                         Utilities.Logd("AdjustReminder");
                         break;
+                    }
                     case R.id.viewSchedule:
+                        intent = new Intent( mContext, ViewScheduleActivity.class );
+                        startActivity(intent);
                         Utilities.Logd("View Schedule");
                         break;
                     default:

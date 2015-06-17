@@ -17,9 +17,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:theme="@android:style/Theme.Holo.DialogWhenLarge"
             android:name=".SelectArea"
-            android:label="@string/title_activity_select_area" >
+            android:label="@string/title_activity_select_area"
+            android:theme="@android:style/Theme.Holo.DialogWhenLarge" >
+        </activity>
+        <activity
+            android:name=".CustomTimePicker"
+            android:label="@string/title_activity_time_picker" >
+        </activity>
+        <activity
+            android:name=".ViewScheduleActivity"
+            android:label="@string/title_activity_view_schedule" >
         </activity>
     </application>
 
