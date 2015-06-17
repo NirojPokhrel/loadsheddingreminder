@@ -1,21 +1,18 @@
 package com.bishalniroj.loadsheddingreminder;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.Button;
+import android.widget.Toast;
 
 
-public class LoadSheddingActivity extends ActionBarActivity {
+public class LoadSheddingActivity extends Activity {
     private static Context mContext;
 
     @Override
@@ -25,33 +22,10 @@ public class LoadSheddingActivity extends ActionBarActivity {
         mContext = this;
         setContentView(R.layout.activity_load_shedding);
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new LandingPageFragment())
+            getFragmentManager().beginTransaction()
+                    .add(R.id.container, new LandingPageFragment(), "LoadSheddingFragment")
                     .commit();
         }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_load_shedding, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -71,7 +45,7 @@ public class LoadSheddingActivity extends ActionBarActivity {
             mBtnAdjustReminder = (Button) rootView.findViewById(R.id.adjustReminder);
             mBtnViewSchedule = (Button) rootView.findViewById(R.id.viewSchedule);
 
-            mBtnViewSchedule.setOnClickListener(mOnClickListener);
+            mBtnSelectArea.setOnClickListener(mOnClickListener);
             mBtnAdjustReminder.setOnClickListener(mOnClickListener);
             mBtnViewSchedule.setOnClickListener(mOnClickListener);
 
@@ -81,19 +55,71 @@ public class LoadSheddingActivity extends ActionBarActivity {
         private View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
              public void onClick(View view) {
+                Utilities.Logd("onClick()");
                 switch(view.getId()) {
                     case R.id.selectArea:
+                        Utilities.Logd("Clicked select area");
                         Intent intent = new Intent( mContext, SelectArea.class );
-                        startActivity(intent);
+                        startActivityForResult(intent, Utilities.REQUEST_CODE_SELECT_AREA);
                         break;
                     case R.id.adjustReminder:
+                        Utilities.Logd("AdjustReminder");
                         break;
                     case R.id.viewSchedule:
+                        Utilities.Logd("View Schedule");
                         break;
                     default:
                         break;
                 }
             }
         };
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Utilities.Loge("Activity resumed");
+        Intent intent = getIntent();
+        Utilities.Logd("intent"+intent.toString());
+    }
+
+    @Override
+    public void onActivityResult( int requestCode, int resultCode, Intent intent) {
+        Utilities.Loge("requestCode: "+ requestCode+ " resultCode: " + resultCode);
+        if(resultCode != RESULT_OK ) {
+            Utilities.Loge("Result code is not OK. Result Code : " + resultCode);
+
+            return;
+        }
+        switch(requestCode) {
+            case Utilities.REQUEST_CODE_SELECT_AREA:
+                int areaNumber = intent.getIntExtra(Utilities.INTENT_DATA_AREA_NUMBER, -1 );
+                if( areaNumber == -1 ) {
+                    Toast.makeText(this,"Proper area is not detected. Please select proper area", Toast.LENGTH_SHORT).show();
+                    Utilities.Loge("Proper area not detected");
+
+                    return;
+                }
+                Utilities.Logd("Area Number: "+areaNumber);
+                Utilities.SaveAreaNumber(areaNumber);
+                break;
+            case Utilities.REQUEST_CODE_TIME_PICKER:
+                int hour = intent.getIntExtra(Utilities.INTENT_DATA_HOUR, -1 );
+                if( hour == -1 ) {
+                    Toast.makeText(this,"Proper Hour not set", Toast.LENGTH_SHORT).show();
+                    Utilities.Loge("Proper Hour not set");
+
+                    return;
+                }
+                int mins = intent.getIntExtra(Utilities.INTENT_DATA_MIN, -1 );
+                if( mins == -1 ) {
+                Toast.makeText(this,"Proper Minutes not set", Toast.LENGTH_SHORT).show();
+                Utilities.Loge("Proper Minutes not set");
+
+                return;
+            }
+                Utilities.SaveHourAndMins(hour,mins );
+                break;
+        }
     }
 }

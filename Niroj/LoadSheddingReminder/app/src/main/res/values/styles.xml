@@ -14,7 +14,7 @@
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
     </style>
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <!-- API 14 theme customizations can go here. -->
         <item name="android:buttonStyle">@style/button</item>
     </style>

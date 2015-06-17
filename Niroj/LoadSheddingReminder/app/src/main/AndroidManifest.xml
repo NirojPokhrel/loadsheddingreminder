@@ -17,6 +17,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:theme="@android:style/Theme.Holo.DialogWhenLarge"
             android:name=".SelectArea"
             android:label="@string/title_activity_select_area" >
         </activity>
