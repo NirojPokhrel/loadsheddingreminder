@@ -1,12 +1,11 @@
 package com.bishalniroj.loadsheddingreminder;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
@@ -15,7 +14,7 @@ import android.widget.LinearLayout;
 
 
 public class ViewScheduleActivity extends
-        Activity {
+        FragmentActivity {
 
     private static Activity mActivity;
     @Override
@@ -62,7 +61,9 @@ public class ViewScheduleActivity extends
         private View.OnClickListener mClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                    //Launch an activity to show the schedule !!!
+                Intent intent = new Intent( mActivity, TabbedViewScheduleActivity.class);
+                startActivity(intent);
             }
         };
     }
@@ -80,5 +81,5 @@ public class ViewScheduleActivity extends
 
             return rootView;
         }
-    };
+    }
 }

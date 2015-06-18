@@ -44,7 +44,6 @@ public class CustomTimePicker extends Activity {
         CustomTimePicker mCustomTimePicker;
 
         public TimePickerFragment() {
-
         }
 
         @Override
@@ -64,7 +63,7 @@ public class CustomTimePicker extends Activity {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             String str = "You will get alarm at "+hourOfDay+" hours"+" "+minute+" minutes"+
-                    " before next load shedding";
+                    " before every load shedding";
             mTimerInfoDisplay.setText(str);
         }
     }
