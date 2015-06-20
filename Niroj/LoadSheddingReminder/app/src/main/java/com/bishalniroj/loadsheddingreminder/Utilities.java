@@ -33,4 +33,5 @@ public class Utilities {
     public static final String INTENT_DATA_AREA_NUMBER = "area_number";
     public static final String INTENT_DATA_HOUR = "hour";
     public static final String INTENT_DATA_MIN = "min";
+    public static final String LOADSHEDDING_BROADCAST_RECEIVER_ACTION = "com.niroj.alarmmangertest.ACTION";
 }

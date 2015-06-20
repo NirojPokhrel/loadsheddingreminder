@@ -41,6 +41,11 @@ public class TestDataClass implements IDummyClass {
     }
 
     @Override
+    public ArrayList<ArrayList<LoadSheddingData>> GetLoadSheddingInfoForAnArea(int anInt) {
+        return mArrayListOfData;
+    }
+
+    @Override
     public int GetNumberOfAreas() {
         return mNumberOfAreas;
     }

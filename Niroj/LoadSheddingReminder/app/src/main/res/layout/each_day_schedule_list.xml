@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/background_material_light"
+    android:layout_margin="10dp">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/nameOfDay"
+        android:textSize="24sp"
+        android:text="Sunday"
+        android:textStyle="bold|italic"
+        android:gravity="left"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/daySchedule"
+        android:textSize="20sp"
+        android:text="test"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+</LinearLayout>

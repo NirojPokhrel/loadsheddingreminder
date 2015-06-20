@@ -6,6 +6,8 @@ import java.util.ArrayList;
  * Created by Niroj Pokhrel on 6/15/2015.
  */
 public interface IDummyClass {
+    ArrayList<ArrayList<LoadSheddingData>> GetLoadSheddingInfoForAnArea(int anInt);
+
     public class LoadSheddingData {
         public LoadSheddingData() {
             start_hour = 0;

@@ -70,7 +70,7 @@ public class LoadSheddingActivity extends Activity {
                         break;
                     }
                     case R.id.viewSchedule:
-                        intent = new Intent( mContext, ViewScheduleActivity.class );
+                        intent = new Intent( mContext, TabbedViewScheduleActivity.class );
                         startActivity(intent);
                         Utilities.Logd("View Schedule");
                         break;

@@ -17,7 +17,10 @@
 package com.bishalniroj.loadsheddingreminder;
 
 import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -31,13 +34,18 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class TabbedViewScheduleActivity extends FragmentActivity {
 
     private static IDummyClass mDummyDataClass;
+    private static Activity mActivity;
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
 
     ViewPager mViewPager;
@@ -45,6 +53,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDummyDataClass = TestDataClass.GetInstanceOfClass();
+        mActivity = this;
         setContentView(R.layout.activity_collection_demo);
 
         mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
@@ -101,7 +110,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         public Fragment getItem(int i) {
             Fragment fragment = new DemoObjectFragment();
             Bundle args = new Bundle();
-            args.putInt(DemoObjectFragment.ARG_OBJECT, i + 1); // Our object is just an integer :-P
+            args.putInt(DemoObjectFragment.ARG_OBJECT, i); // Our object is just an integer :-P
             fragment.setArguments(args);
             return fragment;
         }
@@ -114,24 +123,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch(position) {
-                case 0:
-                    return "Sunday";
-                case 1:
-                    return "Monday";
-                case 2:
-                    return "Tuesday";
-                case 3:
-                    return "Wednesday";
-                case 4:
-                    return "Thursday";
-                case 5:
-                    return "Friday";
-                case 6:
-                    return "Saturday";
-                default:
-                    return "None";
-            }
+            return "Area " + (position+1);
         }
     }
 
@@ -141,27 +133,103 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
     public static class DemoObjectFragment extends Fragment {
 
         public static final String ARG_OBJECT = "object";
+        private ArrayList<ArrayList<IDummyClass.LoadSheddingData>> mLoadSheddingList;
+        private ArrayAdapter<ArrayList<IDummyClass.LoadSheddingData>> mListAdapter;
+        private ListView mListView;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
+
+            Utilities.Logd("Test 0");
             View rootView = inflater.inflate(R.layout.fragment_collection_object, container, false);
+            Utilities.Logd("Test 1");
             Bundle args = getArguments();
-            ((TextView) rootView.findViewById(android.R.id.text1)).setText(
-                    Html.fromHtml(ConvertToHtmlString(args.getInt(ARG_OBJECT))));
+
+          //  mLoadSheddingList = mDummyDataClass.GetLoadSheddingInfoForADay(args.getInt(ARG_OBJECT));
+            mLoadSheddingList = mDummyDataClass.GetLoadSheddingInfoForAnArea(args.getInt(ARG_OBJECT));
+            mListAdapter = new GameHistoryAdapter( mActivity, mLoadSheddingList);
+
+            mListView = (ListView)rootView.findViewById(R.id.listOfScheduleForEachDay);
+            mListView.setAdapter(mListAdapter);
+            //
+            /*
+            Create a list view and then populate it with the
+            */
+            /*((TextView) rootView.findViewById(android.R.id.text1)).setText(
+                    Html.fromHtml(ConvertToHtmlString(args.getInt(ARG_OBJECT))));*/
             return rootView;
         }
+
+
+        private class GameHistoryAdapter extends ArrayAdapter<ArrayList<IDummyClass.LoadSheddingData>> {
+            private Context mContext;
+
+            public GameHistoryAdapter(Context context, ArrayList<ArrayList<IDummyClass.LoadSheddingData>> objects) {
+                super(context, 0, objects);
+                // TODO Auto-generated constructor stub
+                mContext = context;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent ) {
+                ArrayList<IDummyClass.LoadSheddingData> loadSheddingData = getItem(position);
+                LayoutInflater inflater = LayoutInflater.from(mContext);
+                convertView =  inflater.inflate( R.layout.each_day_schedule_list, parent, false );
+                Calendar cal = Calendar.getInstance();
+                int day = cal.get(Calendar.DAY_OF_WEEK);
+                Utilities.Logd("day = "+day +" position = " + position);
+                if( day == (position+1) ) {
+                    convertView.setBackgroundColor(Color.LTGRAY);
+                }
+                TextView tv = (TextView)convertView.findViewById(R.id.nameOfDay);
+                switch( position ) {
+                    case 0:
+                        tv.setText("Sunday");
+                        break;
+                    case 1:
+                        tv.setText("Monday");
+                        break;
+                    case 2:
+                        tv.setText("Tuesday");
+                        break;
+                    case 3:
+                        tv.setText("Wednesday");
+                        break;
+                    case 4:
+                        tv.setText("Thursday");
+                        break;
+                    case 5:
+                        tv.setText("Friday");
+                        break;
+                    case 6:
+                        tv.setText("Saturday");
+                        break;
+                    default:
+                        tv.setText("NONE");
+                    break;
+                }
+                tv = (TextView)convertView.findViewById(R.id.daySchedule);
+                //tv.setText("Testing");
+                tv.setText(Html.fromHtml(ConvertToHtmlString(loadSheddingData)));
+
+
+                return convertView;
+            }
+
+        };
     }
 
 
 
-    private static String ConvertToHtmlString( int pos ) {
+    private static String ConvertToHtmlString( /*int pos*/ArrayList<IDummyClass.LoadSheddingData> loadSheddingList ) {
         String str = "";
 
-        ArrayList<IDummyClass.LoadSheddingData> loadSheddingList = mDummyDataClass.GetLoadSheddingInfoForADay(pos);
+       // ArrayList<IDummyClass.LoadSheddingData> loadSheddingList = mDummyDataClass.GetLoadSheddingInfoForADay(pos);
         for( int i=0; i<loadSheddingList.size(); i++) {
-            str += "<h6><u><i>"+loadSheddingList.get(i).start_hour+":"+loadSheddingList.get(i).start_min+"-"+
-                    loadSheddingList.get(i).end_hour+":"+loadSheddingList.get(i).end_hour+"</i></u></h6>";
+        //    str += "Load Shedding " + (i+1) +"<br>";
+            str += "<i>"+loadSheddingList.get(i).start_hour+":"+loadSheddingList.get(i).start_min+"-"+
+                    loadSheddingList.get(i).end_hour+":"+loadSheddingList.get(i).end_hour+"</i>";
             str += "<br>";
         }
 
