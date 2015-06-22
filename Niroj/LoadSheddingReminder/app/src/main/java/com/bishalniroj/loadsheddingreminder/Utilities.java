@@ -1,6 +1,8 @@
 package com.bishalniroj.loadsheddingreminder;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Created by Niroj Pokhrel on 6/16/2015.
@@ -26,6 +28,10 @@ public class Utilities {
     public static void SaveHourAndMins( int hour, int mins ) {
         sHour = hour;
         sMins = mins;
+    }
+
+    public static void showToast( Context ctx, String str ) {
+        Toast.makeText(ctx, str, Toast.LENGTH_SHORT ).show();
     }
 
     public static final int REQUEST_CODE_SELECT_AREA = 1;

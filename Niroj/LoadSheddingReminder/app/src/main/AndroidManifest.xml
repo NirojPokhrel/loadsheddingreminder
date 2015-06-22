@@ -31,7 +31,11 @@
         </activity>
         <activity
             android:name=".TabbedViewScheduleActivity"
-            android:label="@string/title_activity_view_schedule" >
+            android:label="@string/title_activity_view_schedule">
+        </activity>
+        <activity
+            android:name=".ReminderForLoadShedding"
+            android:label="@string/title_reminder_for_loadshedding" >
         </activity>
     </application>
 

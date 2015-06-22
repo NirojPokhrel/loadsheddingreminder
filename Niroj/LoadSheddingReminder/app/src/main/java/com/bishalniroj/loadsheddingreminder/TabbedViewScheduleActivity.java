@@ -225,9 +225,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
     private static String ConvertToHtmlString( /*int pos*/ArrayList<IDummyClass.LoadSheddingData> loadSheddingList ) {
         String str = "";
 
-       // ArrayList<IDummyClass.LoadSheddingData> loadSheddingList = mDummyDataClass.GetLoadSheddingInfoForADay(pos);
         for( int i=0; i<loadSheddingList.size(); i++) {
-        //    str += "Load Shedding " + (i+1) +"<br>";
             str += "<i>"+loadSheddingList.get(i).start_hour+":"+loadSheddingList.get(i).start_min+"-"+
                     loadSheddingList.get(i).end_hour+":"+loadSheddingList.get(i).end_hour+"</i>";
             str += "<br>";

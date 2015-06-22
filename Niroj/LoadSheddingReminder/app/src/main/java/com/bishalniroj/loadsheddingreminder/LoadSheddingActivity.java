@@ -41,11 +41,11 @@ public class LoadSheddingActivity extends Activity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_landing_page, container, false);
-            mBtnSelectArea = (Button) rootView.findViewById(R.id.selectArea);
+           // mBtnSelectArea = (Button) rootView.findViewById(R.id.selectArea);
             mBtnAdjustReminder = (Button) rootView.findViewById(R.id.adjustReminder);
             mBtnViewSchedule = (Button) rootView.findViewById(R.id.viewSchedule);
 
-            mBtnSelectArea.setOnClickListener(mOnClickListener);
+            //mBtnSelectArea.setOnClickListener(mOnClickListener);
             mBtnAdjustReminder.setOnClickListener(mOnClickListener);
             mBtnViewSchedule.setOnClickListener(mOnClickListener);
 
@@ -58,13 +58,14 @@ public class LoadSheddingActivity extends Activity {
                 Intent intent;
                 Utilities.Logd("onClick()");
                 switch(view.getId()) {
-                    case R.id.selectArea:
+ /*                   case R.id.selectArea:
                         Utilities.Logd("Clicked select area");
                         intent = new Intent( mContext, SelectArea.class );
                         startActivityForResult(intent, Utilities.REQUEST_CODE_SELECT_AREA);
-                        break;
+                        break;*/
                     case R.id.adjustReminder: {
-                        intent = new Intent( mContext, CustomTimePicker.class );
+                        //intent = new Intent( mContext, CustomTimePicker.class );
+                        intent = new Intent( mContext, ReminderForLoadShedding.class );
                         startActivity(intent);
                         Utilities.Logd("AdjustReminder");
                         break;

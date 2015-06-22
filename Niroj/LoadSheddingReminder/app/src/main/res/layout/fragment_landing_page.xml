@@ -9,33 +9,27 @@
     android:layout_marginTop="50dp"
     android:background="@drawable/launching_page_background_img" >
 
+    <View
+        android:id="@+id/anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"
+        />
     <Button
         android:id="@+id/adjustReminder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:layout_margin="10dp"
+        android:layout_above="@id/anchor"
         android:text="@string/landing_page_option1"
         android:textSize="24sp" />
 
     <Button
-        android:id="@+id/selectArea"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/adjustReminder"
-        android:layout_marginBottom="30dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:text="@string/landing_page_option2"
-        android:textSize="24sp" />
-    <Button
         android:id="@+id/viewSchedule"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/adjustReminder"
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_margin ="10dp"
+        android:layout_below="@id/anchor"
         android:text="@string/landing_page_option3"
         android:textSize="24sp" />
 

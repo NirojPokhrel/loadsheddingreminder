@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/reminder_list_background"
+    android:layout_margin="5dp" >
+    <TextView 
+        android:id="@+id/reminderInfo"
+        android:layout_width = "0dp"
+        android:layout_height="wrap_content"
+        android:text="Area 1 Sunday 04:00-05:45"
+        android:gravity = "center"
+        android:layout_gravity="center"
+        android:textSize="16sp"
+        android:layout_weight="1.0"/>
+    <Button
+        android:id="@+id/deleteBtnImage"
+        android:background="@drawable/ic_action_delete"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
