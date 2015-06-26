@@ -67,7 +67,7 @@ public class Utilities {
         dos.close();
     }
 
-    public static class LoadSheddingScheduleData {
+    public static class LoadSheddingScheduleData implements Comparable {
         public int mStartHour;
         public int mStartMins;
         public int mEndHour;
@@ -85,6 +85,23 @@ public class Utilities {
             mStartMins = startMin;
             mEndHour = endHour;
             mEndMins = endMin;
+        }
+
+        @Override
+        public int compareTo(Object another) {
+            LoadSheddingScheduleData schedData = (LoadSheddingScheduleData)another;
+            if( schedData.mStartHour == this.mStartHour ) {
+                if( schedData.mStartMins == this.mStartMins )
+                    return 0;
+                else if( schedData.mStartMins < this.mStartMins )
+                    return 1;
+                else
+                    return -1;
+            } else if( schedData.mStartHour > this.mStartHour ) {
+                return -1;
+            } else {
+                return 1;
+            }
         }
     }
 

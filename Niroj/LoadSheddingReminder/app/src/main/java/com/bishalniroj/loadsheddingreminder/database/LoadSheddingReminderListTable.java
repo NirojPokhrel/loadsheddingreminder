@@ -14,6 +14,8 @@ import com.bishalniroj.loadsheddingreminder.Utilities;
 
 public class LoadSheddingReminderListTable {
 
+    //
+    List<Utilities.LoadSheddingReminderData> mReminderList = null;
 	//Table info
 	public static final String TABLE_REMINDERLIST = "reminderlist";
 	public static final String COLUMN_ID = "_id";
@@ -85,6 +87,8 @@ public class LoadSheddingReminderListTable {
 	}
 	
 	public List<Utilities.LoadSheddingReminderData> getAllReminders() {
+        if( mReminderList != null )
+            return mReminderList;
 		List<Utilities.LoadSheddingReminderData> listTask = new ArrayList<Utilities.LoadSheddingReminderData>();
 		
 		Cursor cursor = mDataBase.query( TABLE_REMINDERLIST, ALL_COLUMNS, null, null, null, null, null );
@@ -94,6 +98,7 @@ public class LoadSheddingReminderListTable {
 			listTask.add(data);
 			cursor.moveToNext();
 		}
+        mReminderList = listTask;
 		return listTask;
 	}
 	

@@ -11,9 +11,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
+
 
 public class LoadSheddingActivity extends Activity {
     private static Context mContext;
+    private LoadSheddingScheduleDbHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +29,25 @@ public class LoadSheddingActivity extends Activity {
                     .add(R.id.container, new LandingPageFragment(), "LoadSheddingFragment")
                     .commit();
         }
+        mPlayerList.run();
     }
 
+    //This one is for smooth running of database when application starts so that it won't delay when request is made
+    private Runnable mPlayerList = new Runnable() {
+
+        @Override
+        public void run() {
+            mDbHelper = LoadSheddingScheduleDbHelper.GetInstance(mContext);
+            mDbHelper.open();
+        }
+
+    };
+
+    @Override
+    public void onDestroy() {
+      //  mDbHelper.close();
+        super.onDestroy();
+    }
     /**
      * A placeholder fragment containing a simple view.
      */

@@ -20,6 +20,7 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingReminderListTable;
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-//TODO: put all the database operations in separate thread
 public class ReminderForLoadShedding extends Activity {
     private static Activity mActivity;
     private static Spinner mSpinnerArea, mSpinnerDay, mSpinnerTime;
@@ -93,7 +93,7 @@ public class ReminderForLoadShedding extends Activity {
         //DATABASE
         mReminderListDbTable = new LoadSheddingReminderListTable(this);
         mReminderListDbTable.open();
-        mSchduleDbHelper = new LoadSheddingScheduleDbHelper(this);
+        mSchduleDbHelper = LoadSheddingScheduleDbHelper.GetInstance(this);
         mSchduleDbHelper.open();
 
         //List of Reminder
@@ -135,7 +135,6 @@ public class ReminderForLoadShedding extends Activity {
                 //Get Apis for the selected day and area
                 mTimeAdapter.clear();
                 mTimeAdapter.add("Select Time");
-                //TODO: Get the schedules for proper area and day
                 ArrayList<Utilities.LoadSheddingScheduleData> dailyData;
 
                 dailyData =  mSchduleDbHelper.GetSchedDataForADay( mPositionArea, mPositionDay);
@@ -158,9 +157,6 @@ public class ReminderForLoadShedding extends Activity {
 
                     mTimeAdapter.add(str);
                 }
-
-              //  mTimeAdapter.add("03:00-05:45");
-              //  mTimeAdapter.add("17:00-20:00");
             }
         }
 
@@ -276,6 +272,9 @@ public class ReminderForLoadShedding extends Activity {
             mNMins = minute;
             if( mStoredDay >= 0 && mStoredTime >= 0 && mStoredArea >= 0 ) {
                 //TODO: Check if this timing has already been stored
+/*                List<Utilities.LoadSheddingReminderData> listTask = mReminderListDbTable.getAllReminders();
+                for( int i=0; i<listTask.size(); i++ ) {
+                }*/
                 StoreData();
             }
         }
@@ -288,7 +287,6 @@ public class ReminderForLoadShedding extends Activity {
         reminderData.mAreaNum = mStoredArea;
         reminderData.mDay = mStoredDay;
         reminderData.mReminderFrequency = mRepeatValue;
-        //TODO: Proper channel to get the load shedding info
         reminderData.mLoadsheddingInfo = GetLoadSheddingInfo( reminderData.mAreaNum, reminderData.mDay,
                 mStoredTime);
         reminderData.mHourBefore = mNHour;
@@ -317,20 +315,6 @@ public class ReminderForLoadShedding extends Activity {
     public static Utilities.LoadSheddingScheduleData GetLoadSheddingInfo(int areaNum, int day, int positionTime) {
 
         return mSchduleDbHelper.GetSchedDataForADay(areaNum,day).get(positionTime-1);
-/*        Utilities.LoadSheddingScheduleData scheduleData = new Utilities.LoadSheddingScheduleData();
-        if( positionTime == 1 ) {
-            scheduleData.mStartHour = 3;
-            scheduleData.mStartMins = 0;
-            scheduleData.mEndHour = 5;
-            scheduleData.mEndMins = 45;
-        } else if( positionTime == 2 ){
-            scheduleData.mStartHour = 17;
-            scheduleData.mStartMins = 0;
-            scheduleData.mEndHour = 20;
-            scheduleData.mEndMins = 0;
-        }
-
-        return scheduleData;*/
     }
     //ArrayAdapter for list and it's storage
     public class ListOfReminderAdapter extends ArrayAdapter<Utilities.LoadSheddingReminderData> {

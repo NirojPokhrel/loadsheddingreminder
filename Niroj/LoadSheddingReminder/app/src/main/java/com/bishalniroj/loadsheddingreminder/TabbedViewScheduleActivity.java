@@ -38,13 +38,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bishalniroj.loadsheddingreminder.database.LoadSheddingReminderListTable;
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-/* TODO:
+/* TODO: Save the previous area selected by user so that he doesn't have to swipe every time he opens application
  */
 public class TabbedViewScheduleActivity extends FragmentActivity {
 
@@ -55,7 +54,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
     ViewPager mViewPager;
 
     //Database
-    private static LoadSheddingScheduleDbHelper mSchduleDbHelper;
+    private static LoadSheddingScheduleDbHelper mScheduleDbHelper;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,8 +78,8 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
 
         //DATABASE
-        mSchduleDbHelper = new LoadSheddingScheduleDbHelper(this);
-        mSchduleDbHelper.open();
+        mScheduleDbHelper = LoadSheddingScheduleDbHelper.GetInstance(this);
+        mScheduleDbHelper.open();
     }
 
     @Override
@@ -162,7 +161,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
             int areaNum = args.getInt(ARG_OBJECT);
             //For 7 days in a week
             for( int i=0; i<7; i++ ) {
-                mLoadSheddingList.add(mSchduleDbHelper.GetSchedDataForADay(areaNum, i));
+                mLoadSheddingList.add(mScheduleDbHelper.GetSchedDataForADay(areaNum, i));
             }
             mListAdapter = new ScheduleInfoAdapter( mActivity, mLoadSheddingList);
 
@@ -234,14 +233,25 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         };
     }
 
-
-
     private static String ConvertToHtmlString( /*int pos*/ArrayList<Utilities.LoadSheddingScheduleData> loadSheddingList ) {
         String str = "";
 
         for( int i=0; i<loadSheddingList.size(); i++) {
-            str += "<i>"+loadSheddingList.get(i).mStartHour+":"+loadSheddingList.get(i).mStartMins+"-"+
-                    loadSheddingList.get(i).mEndHour+":"+loadSheddingList.get(i).mEndMins+"</i>";
+            str += "<i>";
+            str += loadSheddingList.get(i).mStartHour/10;
+            str += loadSheddingList.get(i).mStartHour%10;
+            str += ":";
+            str += loadSheddingList.get(i).mStartMins/10;
+            str += loadSheddingList.get(i).mStartMins%10;
+            str += "-";
+            str += loadSheddingList.get(i).mEndHour/10;
+            str += loadSheddingList.get(i).mEndHour%10;
+            str += ":";
+            str += loadSheddingList.get(i).mEndMins/10;
+            str += loadSheddingList.get(i).mEndMins%10;
+            str += "</i>";
+            /*str += "<i>"+loadSheddingList.get(i).mStartHour+":"+loadSheddingList.get(i).mStartMins+"-"+
+                    loadSheddingList.get(i).mEndHour+":"+loadSheddingList.get(i).mEndMins+"</i>";*/
             if( i != (loadSheddingList.size() - 1) )
                 str += "<br>";
         }
