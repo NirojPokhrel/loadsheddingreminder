@@ -38,6 +38,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bishalniroj.loadsheddingreminder.database.LoadSheddingReminderListTable;
+import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -50,6 +53,9 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
 
     ViewPager mViewPager;
+
+    //Database
+    private static LoadSheddingScheduleDbHelper mSchduleDbHelper;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +75,12 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         // Set up the ViewPager, attaching the adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+
+
+
+        //DATABASE
+        mSchduleDbHelper = new LoadSheddingScheduleDbHelper(this);
+        mSchduleDbHelper.open();
     }
 
     @Override
@@ -134,21 +146,24 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
     public static class DemoObjectFragment extends Fragment {
 
         public static final String ARG_OBJECT = "object";
-        private ArrayList<ArrayList<IDummyClass.LoadSheddingData>> mLoadSheddingList;
-        private ArrayAdapter<ArrayList<IDummyClass.LoadSheddingData>> mListAdapter;
+        private ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>> mLoadSheddingList;
+        private ArrayAdapter<ArrayList<Utilities.LoadSheddingScheduleData>> mListAdapter;
         private ListView mListView;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
 
-            Utilities.Logd("Test 0");
             View rootView = inflater.inflate(R.layout.fragment_collection_object, container, false);
-            Utilities.Logd("Test 1");
             Bundle args = getArguments();
 
           //  mLoadSheddingList = mDummyDataClass.GetLoadSheddingInfoForADay(args.getInt(ARG_OBJECT));
-            mLoadSheddingList = mDummyDataClass.GetLoadSheddingInfoForAnArea(args.getInt(ARG_OBJECT));
+            mLoadSheddingList = new ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>();
+            int areaNum = args.getInt(ARG_OBJECT);
+            //For 7 days in a week
+            for( int i=0; i<7; i++ ) {
+                mLoadSheddingList.add(mSchduleDbHelper.GetSchedDataForADay(areaNum, i));
+            }
             mListAdapter = new ScheduleInfoAdapter( mActivity, mLoadSheddingList);
 
             mListView = (ListView)rootView.findViewById(R.id.listOfScheduleForEachDay);
@@ -163,18 +178,17 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         }
 
 
-        private class ScheduleInfoAdapter extends ArrayAdapter<ArrayList<IDummyClass.LoadSheddingData>> {
+        private class ScheduleInfoAdapter extends ArrayAdapter<ArrayList<Utilities.LoadSheddingScheduleData>> {
             private Context mContext;
 
-            public ScheduleInfoAdapter(Context context, ArrayList<ArrayList<IDummyClass.LoadSheddingData>> objects) {
+            public ScheduleInfoAdapter(Context context, ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>> objects) {
                 super(context, 0, objects);
-                // TODO Auto-generated constructor stub
                 mContext = context;
             }
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent ) {
-                ArrayList<IDummyClass.LoadSheddingData> loadSheddingData = getItem(position);
+                ArrayList<Utilities.LoadSheddingScheduleData> loadSheddingData = getItem(position);
                 LayoutInflater inflater = LayoutInflater.from(mContext);
                 convertView =  inflater.inflate( R.layout.each_day_schedule_list, parent, false );
                 Calendar cal = Calendar.getInstance();
@@ -222,13 +236,13 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
 
 
-    private static String ConvertToHtmlString( /*int pos*/ArrayList<IDummyClass.LoadSheddingData> loadSheddingList ) {
+    private static String ConvertToHtmlString( /*int pos*/ArrayList<Utilities.LoadSheddingScheduleData> loadSheddingList ) {
         String str = "";
 
         for( int i=0; i<loadSheddingList.size(); i++) {
-            str += "<i>"+loadSheddingList.get(i).start_hour+":"+loadSheddingList.get(i).start_min+"-"+
-                    loadSheddingList.get(i).end_hour+":"+loadSheddingList.get(i).end_hour+"</i>";
-            if( i == (loadSheddingList.size() - 1) )
+            str += "<i>"+loadSheddingList.get(i).mStartHour+":"+loadSheddingList.get(i).mStartMins+"-"+
+                    loadSheddingList.get(i).mEndHour+":"+loadSheddingList.get(i).mEndMins+"</i>";
+            if( i != (loadSheddingList.size() - 1) )
                 str += "<br>";
         }
 
