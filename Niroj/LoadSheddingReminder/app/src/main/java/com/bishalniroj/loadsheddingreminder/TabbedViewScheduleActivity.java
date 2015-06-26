@@ -41,7 +41,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
+/* TODO:
+ */
 public class TabbedViewScheduleActivity extends FragmentActivity {
 
     private static IDummyClass mDummyDataClass;
@@ -148,7 +149,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
           //  mLoadSheddingList = mDummyDataClass.GetLoadSheddingInfoForADay(args.getInt(ARG_OBJECT));
             mLoadSheddingList = mDummyDataClass.GetLoadSheddingInfoForAnArea(args.getInt(ARG_OBJECT));
-            mListAdapter = new GameHistoryAdapter( mActivity, mLoadSheddingList);
+            mListAdapter = new ScheduleInfoAdapter( mActivity, mLoadSheddingList);
 
             mListView = (ListView)rootView.findViewById(R.id.listOfScheduleForEachDay);
             mListView.setAdapter(mListAdapter);
@@ -162,10 +163,10 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         }
 
 
-        private class GameHistoryAdapter extends ArrayAdapter<ArrayList<IDummyClass.LoadSheddingData>> {
+        private class ScheduleInfoAdapter extends ArrayAdapter<ArrayList<IDummyClass.LoadSheddingData>> {
             private Context mContext;
 
-            public GameHistoryAdapter(Context context, ArrayList<ArrayList<IDummyClass.LoadSheddingData>> objects) {
+            public ScheduleInfoAdapter(Context context, ArrayList<ArrayList<IDummyClass.LoadSheddingData>> objects) {
                 super(context, 0, objects);
                 // TODO Auto-generated constructor stub
                 mContext = context;
@@ -210,7 +211,6 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
                     break;
                 }
                 tv = (TextView)convertView.findViewById(R.id.daySchedule);
-                //tv.setText("Testing");
                 tv.setText(Html.fromHtml(ConvertToHtmlString(loadSheddingData)));
 
 
@@ -228,7 +228,8 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         for( int i=0; i<loadSheddingList.size(); i++) {
             str += "<i>"+loadSheddingList.get(i).start_hour+":"+loadSheddingList.get(i).start_min+"-"+
                     loadSheddingList.get(i).end_hour+":"+loadSheddingList.get(i).end_hour+"</i>";
-            str += "<br>";
+            if( i == (loadSheddingList.size() - 1) )
+                str += "<br>";
         }
 
         return str;

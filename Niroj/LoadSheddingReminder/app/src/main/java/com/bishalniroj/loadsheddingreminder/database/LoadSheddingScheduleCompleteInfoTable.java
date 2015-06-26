@@ -107,6 +107,9 @@ public class LoadSheddingScheduleCompleteInfoTable {
     }
 
     public void dropTable() {
+        if( mDataBase == null ) {
+            Utilities.Loge("Database is null in LoadSheddingScheduleCompleteInfoTable");
+        }
         mDataBase.execSQL("DROP TABLE IF EXISTS " + TABLE_SCHEDULE_INFO);
     }
 

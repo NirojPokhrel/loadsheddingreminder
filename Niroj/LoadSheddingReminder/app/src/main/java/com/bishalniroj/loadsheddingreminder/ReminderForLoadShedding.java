@@ -22,12 +22,13 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingReminderListTable;
+import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-
+//TODO: put all the database operations in separate thread
 public class ReminderForLoadShedding extends Activity {
     private static Activity mActivity;
     private static Spinner mSpinnerArea, mSpinnerDay, mSpinnerTime;
@@ -51,6 +52,7 @@ public class ReminderForLoadShedding extends Activity {
 
     //Database
     public static LoadSheddingReminderListTable mReminderListDbTable;
+    private static LoadSheddingScheduleDbHelper mSchduleDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,8 @@ public class ReminderForLoadShedding extends Activity {
         //DATABASE
         mReminderListDbTable = new LoadSheddingReminderListTable(this);
         mReminderListDbTable.open();
+        mSchduleDbHelper = new LoadSheddingScheduleDbHelper(this);
+        mSchduleDbHelper.open();
 
         //List of Reminder
         mLvOfReminder = (ListView) findViewById(R.id.selectedReminders);
@@ -104,6 +108,8 @@ public class ReminderForLoadShedding extends Activity {
     public void onDestroy() {
         if( mReminderListDbTable != null )
             mReminderListDbTable.close();
+        if( mSchduleDbHelper != null )
+            mSchduleDbHelper.close();
         super.onDestroy();
     }
 
@@ -130,8 +136,31 @@ public class ReminderForLoadShedding extends Activity {
                 mTimeAdapter.clear();
                 mTimeAdapter.add("Select Time");
                 //TODO: Get the schedules for proper area and day
-                mTimeAdapter.add("03:00-05:45");
-                mTimeAdapter.add("17:00-20:00");
+                ArrayList<Utilities.LoadSheddingScheduleData> dailyData;
+
+                dailyData =  mSchduleDbHelper.GetSchedDataForADay( mPositionArea, mPositionDay);
+
+
+                for( int i=0; i<dailyData.size(); i++ ) {
+                    String str = "";
+
+                    str += dailyData.get(i).mStartHour/10;
+                    str += dailyData.get(i).mStartHour%10;
+                    str += ":";
+                    str += dailyData.get(i).mStartMins/10;
+                    str += dailyData.get(i).mStartMins%10;
+                    str += "-";
+                    str += dailyData.get(i).mEndHour/10;
+                    str += dailyData.get(i).mEndHour%10;
+                    str += ":";
+                    str += dailyData.get(i).mEndMins/10;
+                    str += dailyData.get(i).mEndMins%10;
+
+                    mTimeAdapter.add(str);
+                }
+
+              //  mTimeAdapter.add("03:00-05:45");
+              //  mTimeAdapter.add("17:00-20:00");
             }
         }
 
@@ -287,7 +316,8 @@ public class ReminderForLoadShedding extends Activity {
 
     public static Utilities.LoadSheddingScheduleData GetLoadSheddingInfo(int areaNum, int day, int positionTime) {
 
-        Utilities.LoadSheddingScheduleData scheduleData = new Utilities.LoadSheddingScheduleData();
+        return mSchduleDbHelper.GetSchedDataForADay(areaNum,day).get(positionTime-1);
+/*        Utilities.LoadSheddingScheduleData scheduleData = new Utilities.LoadSheddingScheduleData();
         if( positionTime == 1 ) {
             scheduleData.mStartHour = 3;
             scheduleData.mStartMins = 0;
@@ -300,7 +330,7 @@ public class ReminderForLoadShedding extends Activity {
             scheduleData.mEndMins = 0;
         }
 
-        return scheduleData;
+        return scheduleData;*/
     }
     //ArrayAdapter for list and it's storage
     public class ListOfReminderAdapter extends ArrayAdapter<Utilities.LoadSheddingReminderData> {
@@ -370,6 +400,5 @@ public class ReminderForLoadShedding extends Activity {
             return convertView;
         }
     }
-
     //TODO: Call apis to set alarm at the particular time
 }

@@ -28,13 +28,14 @@ public class LoadSheddingScheduleDbHelper {
         }
 
         //For testing
+        mScheduleInfoTable.open();
         mScheduleInfoTable.dropTable();
         mScheduleInfoTable.createTable();
         fillDatabase();
 	}
 	
 	public void open() throws SQLException {
-        mScheduleInfoTable.open();
+        //mScheduleInfoTable.open();
 
         listAllSchedInfo();
 	}
