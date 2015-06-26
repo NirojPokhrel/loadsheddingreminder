@@ -4,6 +4,16 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+
 /**
  * Created by Niroj Pokhrel on 6/16/2015.
  */
@@ -40,4 +50,114 @@ public class Utilities {
     public static final String INTENT_DATA_HOUR = "hour";
     public static final String INTENT_DATA_MIN = "min";
     public static final String LOADSHEDDING_BROADCAST_RECEIVER_ACTION = "com.niroj.alarmmangertest.ACTION";
+    public static final String REMINDER_LIST_FILE = "/data/opt/temp/reminderList";
+    public static final String SCHEDULE_LIST = "/data/opt/tmp/scheduleList";
+
+    // To do: Implement the saving and extracting the data using file operations
+    public static ArrayList<LoadSheddingScheduleData> readReminderList() throws IOException {
+        DataInputStream fis = new DataInputStream(new BufferedInputStream(new FileInputStream(REMINDER_LIST_FILE)));
+
+        fis.close();
+        return null;
+    }
+
+    public static void writeReminderList(LoadSheddingScheduleData loadSheddingData) throws IOException {
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream( new FileOutputStream(REMINDER_LIST_FILE)));
+
+        dos.close();
+    }
+
+    public static class LoadSheddingScheduleData {
+        public int mStartHour;
+        public int mStartMins;
+        public int mEndHour;
+        public int mEndMins;
+
+        public LoadSheddingScheduleData() {
+            mStartHour = 0;
+            mStartMins = 0;
+            mEndHour = 0;
+            mEndMins = 0;
+        }
+
+        public LoadSheddingScheduleData( int startHour, int startMin, int endHour, int endMin ) {
+            mStartHour = startHour;
+            mStartMins = startMin;
+            mEndHour = endHour;
+            mEndMins = endMin;
+        }
+    }
+
+    public static class LoadSheddingReminderData {
+
+        public int mID;
+        public int mAreaNum;
+        public int mDay;
+        public int mReminderFrequency;
+        public LoadSheddingScheduleData mLoadsheddingInfo;
+        public int mHourBefore;
+        public int mMinsBefore;
+        public String mDate;
+
+        public LoadSheddingReminderData() {
+            mID = 0;
+            mAreaNum = -1;
+            mDay  = -1;
+            mReminderFrequency = -1;
+            mLoadsheddingInfo = null;
+            mHourBefore = -1;
+            mMinsBefore = -1;
+            mDate = "";
+        }
+
+        public LoadSheddingReminderData( int id, int areaNum, int day, int reminderFrequency,
+                                         LoadSheddingScheduleData scheduleData, int hoursBefore,
+                                         int minsBefore, String date ) {
+            mID = id;
+            mAreaNum = areaNum;
+            mDay = day;
+            mReminderFrequency = reminderFrequency;
+            mLoadsheddingInfo = scheduleData;
+            mHourBefore = hoursBefore;
+            mMinsBefore = minsBefore;
+            mDate = date;
+        }
+    }
+
+    public static class LoadSheddingCompleteSchedule {
+        public int mAreaNum;
+        public int mDay;
+        public LoadSheddingScheduleData mLoadsheddingInfo;
+        public LoadSheddingCompleteSchedule() {
+
+        }
+
+        public LoadSheddingCompleteSchedule( int area, int day, LoadSheddingScheduleData sched ) {
+            mAreaNum = area;
+            mDay = day;
+            mLoadsheddingInfo = sched;
+        }
+    }
+
+    public static class AreaSchedulingInfo {
+        public int mAreaNum;
+        public DaySchedulingInfo[] mWeekInfo;
+    }
+
+    public static class DaySchedulingInfo {
+        public int mDay;
+        public ArrayList<LoadSheddingScheduleData> mDailySched;
+    }
+
+    public static final int SUNDAY = 1;
+    public static final int MONDAY = 2;
+    public static final int TUESDAY = 3;
+    public static final int WEDNESDAY = 4;
+    public static final int THURSDAY = 5;
+    public static final int FRIDAY = 6;
+    public static final int SATURDAY = 7;
+
+    //Currently 7 but it might increase in future
+    public static final int MAXIMUM_NUMBER_OF_AREA = 10;
+
 }

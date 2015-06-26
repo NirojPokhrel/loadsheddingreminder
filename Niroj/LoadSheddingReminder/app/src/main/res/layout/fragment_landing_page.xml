@@ -32,5 +32,4 @@
         android:layout_below="@id/anchor"
         android:text="@string/landing_page_option3"
         android:textSize="24sp" />
-
 </RelativeLayout>

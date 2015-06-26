@@ -15,22 +15,22 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.bishalniroj.loadsheddingreminder.database.LoadSheddingReminderListTable;
+
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
 public class ReminderForLoadShedding extends Activity {
     private static Activity mActivity;
-    private Button mSetTimeBtn;
-    private Spinner mSpinnerArea, mSpinnerDay, mSpinnerTime;
+    private static Spinner mSpinnerArea, mSpinnerDay, mSpinnerTime;
     private ArrayAdapter<CharSequence> mAreaAdapter, mDayAdapter, mTimeAdapter;
     private int mPositionArea, mPositionDay, mPositionTime;
     public static int mStoredArea, mStoredTime, mStoredDay;
@@ -38,39 +38,7 @@ public class ReminderForLoadShedding extends Activity {
     private ArrayList<CharSequence> mListOfTime;
     private Button mButton;
 
-    //List of reminder information
-    public static class DummyDataForDisplay {
-        public DummyDataForDisplay() {
-            mStartHour = 0;
-            mStartMins = 0;
-            mEndHour = 0;
-            mEndMins = 0;
-            mAreaNum = 0;
-            mDay = 0;
-            mNHour = 0;
-            mNMins = 0;
-        }
-        public DummyDataForDisplay(int startHour, int startMins, int endHour, int endMins,
-                                   int areaNum, int day, int nHour, int nMins ) {
-            mStartHour = startHour;
-            mStartMins = startMins;
-            mEndHour = endHour;
-            mEndMins = endMins;
-            mAreaNum = areaNum;
-            mDay = day;
-            mNHour = nHour;
-            mNMins = nMins;
-        }
-        public int mStartHour;
-        public int mStartMins;
-        public int mEndHour;
-        public int mEndMins;
-        public int mAreaNum;
-        public int mDay;
-        public int mNHour;
-        public int mNMins;
-    };
-    private static ArrayList<DummyDataForDisplay> mListOfReminder;
+    protected static List<Utilities.LoadSheddingReminderData> mListOfReminder;
     private static ListView mLvOfReminder;
     private static ListOfReminderAdapter mReminderAdapter;
 
@@ -80,6 +48,9 @@ public class ReminderForLoadShedding extends Activity {
     public static final int FINAL_INT_REPEAT_ALWAYS = 1;
 
     private static int mRepeatValue = FINAL_INT_REPEAT_NONE;
+
+    //Database
+    public static LoadSheddingReminderListTable mReminderListDbTable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +73,7 @@ public class ReminderForLoadShedding extends Activity {
         mSpinnerDay.setOnItemSelectedListener(mDaySelectedListener);
 
         mSpinnerTime = (Spinner) findViewById(R.id.selectTimeSpinner);
-        mListOfTime = new ArrayList<CharSequence>();
+        mListOfTime = new ArrayList<>();
         mListOfTime.add("Select Time");
         mTimeAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_dropdown_item,
                 mListOfTime );
@@ -117,19 +88,23 @@ public class ReminderForLoadShedding extends Activity {
         mButton = (Button) findViewById(R.id.setTime);
         mButton.setOnClickListener(mDoneBtnListener);
 
+        //DATABASE
+        mReminderListDbTable = new LoadSheddingReminderListTable(this);
+        mReminderListDbTable.open();
+
         //List of Reminder
         mLvOfReminder = (ListView) findViewById(R.id.selectedReminders);
-        //Todo: Get the stored list of reminder first
-        //Following implementation is only for testing
-        mListOfReminder = new ArrayList<DummyDataForDisplay>();
+        mListOfReminder = new ArrayList<>();
+        mListOfReminder.addAll(mReminderListDbTable.getAllReminders());
         mReminderAdapter = new ListOfReminderAdapter(this, mListOfReminder);
-        mReminderAdapter.add(new DummyDataForDisplay());
-        mReminderAdapter.add(new DummyDataForDisplay());
-        mReminderAdapter.add(new DummyDataForDisplay());
-        mReminderAdapter.add(new DummyDataForDisplay());
-        mReminderAdapter.add(new DummyDataForDisplay());
         mLvOfReminder.setAdapter(mReminderAdapter);
+    }
 
+    @Override
+    public void onDestroy() {
+        if( mReminderListDbTable != null )
+            mReminderListDbTable.close();
+        super.onDestroy();
     }
 
     private AdapterView.OnItemSelectedListener mAreaSelectedListener = new AdapterView.OnItemSelectedListener() {
@@ -154,6 +129,7 @@ public class ReminderForLoadShedding extends Activity {
                 //Get Apis for the selected day and area
                 mTimeAdapter.clear();
                 mTimeAdapter.add("Select Time");
+                //TODO: Get the schedules for proper area and day
                 mTimeAdapter.add("03:00-05:45");
                 mTimeAdapter.add("17:00-20:00");
             }
@@ -190,9 +166,6 @@ public class ReminderForLoadShedding extends Activity {
                 mStoredArea = mPositionArea;
                 mStoredTime = mPositionTime;
                 mStoredDay = mPositionDay;
-                mSpinnerArea.setSelection(0);
-                mSpinnerDay.setSelection(0);
-                mSpinnerTime.setSelection(0);
 
             } else {
                 Utilities.showToast( mActivity, "Please select proper Area, Time and Day");
@@ -208,7 +181,7 @@ public class ReminderForLoadShedding extends Activity {
             AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
             builder.setTitle("Total Sum");
             LayoutInflater li = LayoutInflater.from(mActivity);
-            View convertView = (View) li.inflate(
+            View convertView = li.inflate(
                     R.layout.fragment_time_options, null);
             RadioButton radioButton = (RadioButton) convertView.findViewById(R.id.idOnce);
             radioButton.setOnClickListener(mTimeOptionsClickListener);
@@ -246,11 +219,10 @@ public class ReminderForLoadShedding extends Activity {
                 }
             }
         };
-    };
+    }
 
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
-        ReminderForLoadShedding mCustomTimePicker;
 
         public TimePickerFragment() {
         }
@@ -271,40 +243,126 @@ public class ReminderForLoadShedding extends Activity {
 
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            String str = "You will get alarm at "+hourOfDay+" hours "+minute+" minutes"+
-                    " before every load shedding";
-            StoreData();
+            mNHour = hourOfDay;
+            mNMins = minute;
+            if( mStoredDay >= 0 && mStoredTime >= 0 && mStoredArea >= 0 ) {
+                //TODO: Check if this timing has already been stored
+                StoreData();
+            }
         }
     }
 
     private static void StoreData() {
         //Call apis to store the information
-        mReminderAdapter.add(new DummyDataForDisplay());
+        Utilities.LoadSheddingReminderData reminderData = new Utilities.LoadSheddingReminderData();
+        reminderData.mID = getID();
+        reminderData.mAreaNum = mStoredArea;
+        reminderData.mDay = mStoredDay;
+        reminderData.mReminderFrequency = mRepeatValue;
+        //TODO: Proper channel to get the load shedding info
+        reminderData.mLoadsheddingInfo = GetLoadSheddingInfo( reminderData.mAreaNum, reminderData.mDay,
+                mStoredTime);
+        reminderData.mHourBefore = mNHour;
+        reminderData.mMinsBefore = mNMins;
+        Calendar cal = Calendar.getInstance();
+        reminderData.mDate = "" + cal.get(Calendar.DATE);
+        mReminderListDbTable.insertReminder(reminderData);
+
+        mReminderAdapter.add(reminderData);
+        mStoredArea = -1;
+        mStoredDay = -1;
+        mStoredTime = -1;
+        mNHour = -1;
+        mNMins = -1;
+        mSpinnerArea.setSelection(0);
+        mSpinnerDay.setSelection(0);
+        mSpinnerTime.setSelection(0);
     }
 
-    //ArrayAdapter for list and it's storage
-    public class ListOfReminderAdapter extends ArrayAdapter<DummyDataForDisplay> {
+    public static int getID() {
+        Calendar cal = Calendar.getInstance();
 
-        public ListOfReminderAdapter(Context context, List<DummyDataForDisplay> objects) {
+        return (int)cal.getTimeInMillis();
+    }
+
+    public static Utilities.LoadSheddingScheduleData GetLoadSheddingInfo(int areaNum, int day, int positionTime) {
+
+        Utilities.LoadSheddingScheduleData scheduleData = new Utilities.LoadSheddingScheduleData();
+        if( positionTime == 1 ) {
+            scheduleData.mStartHour = 3;
+            scheduleData.mStartMins = 0;
+            scheduleData.mEndHour = 5;
+            scheduleData.mEndMins = 45;
+        } else if( positionTime == 2 ){
+            scheduleData.mStartHour = 17;
+            scheduleData.mStartMins = 0;
+            scheduleData.mEndHour = 20;
+            scheduleData.mEndMins = 0;
+        }
+
+        return scheduleData;
+    }
+    //ArrayAdapter for list and it's storage
+    public class ListOfReminderAdapter extends ArrayAdapter<Utilities.LoadSheddingReminderData> {
+
+        public ListOfReminderAdapter(Context context, List<Utilities.LoadSheddingReminderData> objects) {
             super(context, 0, objects);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent ) {
             final int pos = position;
+            final Utilities.LoadSheddingReminderData reminderData = getItem(position);
             if( convertView == null ) {
                 LayoutInflater lp = LayoutInflater.from(mActivity);
                 convertView = lp.inflate(R.layout.reminder_list_item, parent, false);
             }
             TextView tv = (TextView) convertView.findViewById(R.id.reminderInfo);
-            String str = "Area 1 Sunday 04:00-05:45";
+            String str = "Area " + reminderData.mAreaNum + " ";
+            switch(reminderData.mDay) {
+                case Utilities.SUNDAY:
+                    str += " Sunday ";
+                    break;
+                case Utilities.MONDAY:
+                    str += " Monday ";
+                    break;
+                case Utilities.TUESDAY:
+                    str += " Tuesday ";
+                    break;
+                case Utilities.WEDNESDAY:
+                    str += " Wednesday ";
+                    break;
+                case Utilities.THURSDAY:
+                    str += " Thursday ";
+                    break;
+                case Utilities.FRIDAY:
+                    str += " Friday ";
+                    break;
+                case Utilities.SATURDAY:
+                    str += " Saturday ";
+                    break;
+                default:
+                    str += " NONE ";
+            }
+            str += reminderData.mLoadsheddingInfo.mStartHour/10;
+            str += reminderData.mLoadsheddingInfo.mStartHour%10;
+            str += ":";
+            str += reminderData.mLoadsheddingInfo.mStartMins/10;
+            str += reminderData.mLoadsheddingInfo.mStartMins%10;
+            str += "-";
+            str += reminderData.mLoadsheddingInfo.mEndHour/10;
+            str += reminderData.mLoadsheddingInfo.mEndHour%10;
+            str += ":";
+            str += reminderData.mLoadsheddingInfo.mEndMins/10;
+            str += reminderData.mLoadsheddingInfo.mEndMins%10;
             str += "<br>";
-            str += "0 hours 25 minutes";
+            str += reminderData.mHourBefore+" hours " + reminderData.mMinsBefore + " minutes";
             tv.setText(Html.fromHtml(str));
             Button btn = (Button) convertView.findViewById(R.id.deleteBtnImage);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mReminderListDbTable.removeRow(getItem(pos).mID);
                     mReminderAdapter.remove(getItem(pos));
                 }
             });
@@ -312,4 +370,6 @@ public class ReminderForLoadShedding extends Activity {
             return convertView;
         }
     }
+
+    //TODO: Call apis to set alarm at the particular time
 }

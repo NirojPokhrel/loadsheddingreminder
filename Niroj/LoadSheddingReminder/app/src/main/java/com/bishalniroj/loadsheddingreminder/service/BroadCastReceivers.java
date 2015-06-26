@@ -11,14 +11,14 @@ public class BroadCastReceivers extends BroadcastReceiver{
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO Auto-generated method stub
-		
-		if( intent.getAction().equals(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION)) {
-			Utilities.Logd("Alarm successfully received");
-			Intent intentNew = new Intent ( context, LoadSheddingService.class);
-			context.startService(intentNew);
-		}
-		
-	}
+        // TODO Auto-generated method stub
+
+        if( intent.getAction().equals(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION)) {
+            Utilities.Logd("Alarm successfully received");
+            Intent intentNew = new Intent ( context, LoadSheddingService.class);
+            context.startService(intentNew);
+        }
+
+    }
 
 }
