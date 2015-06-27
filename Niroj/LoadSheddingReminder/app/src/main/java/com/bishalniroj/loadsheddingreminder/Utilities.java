@@ -19,6 +19,8 @@ import java.util.Calendar;
  * Created by Niroj Pokhrel on 6/16/2015.
  */
 public class Utilities {
+    public static final String SHARED_PREFERENCES ="com.bishalniroj.loadsheddingreminder.PREFERENCE_KEY" ;
+    public static final String SHARED_PREFERENCES_TAB_NUMBER = "tab_number";
     private static int sAreaNumber;
     private static int sHour, sMins;
 

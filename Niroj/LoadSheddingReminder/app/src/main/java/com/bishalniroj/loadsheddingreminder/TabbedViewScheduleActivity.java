@@ -20,6 +20,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -56,7 +57,13 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
     //Database
     private static LoadSheddingScheduleDbHelper mScheduleDbHelper;
 
+    //
+    private SharedPreferences.Editor mPrefEditor;
+    private static int mSelectedTab;
+
     public void onCreate(Bundle savedInstanceState) {
+        int currentItem = -1;
+
         super.onCreate(savedInstanceState);
         mDummyDataClass = TestDataClass.GetInstanceOfClass();
         mActivity = this;
@@ -71,11 +78,17 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         // button will take the user one step up in the application's hierarchy.
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        //
+        SharedPreferences sharedPref = getSharedPreferences(Utilities.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        mPrefEditor = sharedPref.edit();
+
         // Set up the ViewPager, attaching the adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mDemoCollectionPagerAdapter);
-
-
+        currentItem = sharedPref.getInt(Utilities.SHARED_PREFERENCES_TAB_NUMBER, -1);
+        Utilities.Logd("currentItem = "+currentItem);
+        currentItem = currentItem == -1? 0:currentItem;
+        mViewPager.setCurrentItem(currentItem);
 
         //DATABASE
         mScheduleDbHelper = LoadSheddingScheduleDbHelper.GetInstance(this);
@@ -108,6 +121,14 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onStop() {
+        mPrefEditor.putInt(Utilities.SHARED_PREFERENCES_TAB_NUMBER, mSelectedTab);
+        mPrefEditor.commit();
+        Utilities.Logd("shared onStop called with mSelectedTab "+ mSelectedTab);
+        super.onStop();
+    }
+
     /**
      * A {@link android.support.v4.app.FragmentStatePagerAdapter} that returns a fragment
      * representing an object in the collection.
@@ -124,6 +145,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
             Bundle args = new Bundle();
             args.putInt(DemoObjectFragment.ARG_OBJECT, i); // Our object is just an integer :-P
             fragment.setArguments(args);
+            mSelectedTab = i;
             return fragment;
         }
 
@@ -167,12 +189,10 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
             mListView = (ListView)rootView.findViewById(R.id.listOfScheduleForEachDay);
             mListView.setAdapter(mListAdapter);
+            Calendar cal = Calendar.getInstance();
+            int currentDay = cal.get(Calendar.DAY_OF_WEEK);
+            mListView.setSelection(currentDay-1);
             //
-            /*
-            Create a list view and then populate it with the
-            */
-            /*((TextView) rootView.findViewById(android.R.id.text1)).setText(
-                    Html.fromHtml(ConvertToHtmlString(args.getInt(ARG_OBJECT))));*/
             return rootView;
         }
 
@@ -192,7 +212,6 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
                 convertView =  inflater.inflate( R.layout.each_day_schedule_list, parent, false );
                 Calendar cal = Calendar.getInstance();
                 int day = cal.get(Calendar.DAY_OF_WEEK);
-                Utilities.Logd("day = "+day +" position = " + position);
                 if( day == (position+1) ) {
                     convertView.setBackgroundColor(Color.LTGRAY);
                 }
