@@ -76,7 +76,6 @@ public class LoadSheddingActivity extends Activity {
             @Override
              public void onClick(View view) {
                 Intent intent;
-                Utilities.Logd("onClick()");
                 switch(view.getId()) {
  /*                   case R.id.selectArea:
                         Utilities.Logd("Clicked select area");
@@ -87,13 +86,11 @@ public class LoadSheddingActivity extends Activity {
                         //intent = new Intent( mContext, CustomTimePicker.class );
                         intent = new Intent( mContext, ReminderForLoadShedding.class );
                         startActivity(intent);
-                        Utilities.Logd("AdjustReminder");
                         break;
                     }
                     case R.id.viewSchedule:
                         intent = new Intent( mContext, TabbedViewScheduleActivity.class );
                         startActivity(intent);
-                        Utilities.Logd("View Schedule");
                         break;
                     default:
                         break;
@@ -105,9 +102,7 @@ public class LoadSheddingActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        Utilities.Loge("Activity resumed");
         Intent intent = getIntent();
-        Utilities.Logd("intent"+intent.toString());
     }
 
     @Override

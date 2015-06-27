@@ -1,5 +1,6 @@
 package com.bishalniroj.loadsheddingreminder;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -7,9 +8,13 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -20,13 +25,13 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingReminderListTable;
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 public class ReminderForLoadShedding extends Activity {
@@ -43,7 +48,6 @@ public class ReminderForLoadShedding extends Activity {
     private static ListView mLvOfReminder;
     private static ListOfReminderAdapter mReminderAdapter;
 
-
     public static final int FINAL_INT_REPEAT_NONE = -1;
     public static final int FINAL_INT_REPEAT_ONCE = 0;
     public static final int FINAL_INT_REPEAT_ALWAYS = 1;
@@ -53,12 +57,19 @@ public class ReminderForLoadShedding extends Activity {
     //Database
     public static LoadSheddingReminderListTable mReminderListDbTable;
     private static LoadSheddingScheduleDbHelper mSchduleDbHelper;
+    private static boolean mIsReminderDialog = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = this;
         setContentView(R.layout.activity_reminder_loadshedding);
+
+
+        // Set up action bar.
+        final ActionBar actionBar = getActionBar();
+        // Specify that the Home button should show an "Up" caret, indicating that touching the
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         mSpinnerArea = (Spinner) findViewById(R.id.selectAreaSpinner);
         mAreaAdapter = ArrayAdapter.createFromResource(this,
@@ -100,6 +111,7 @@ public class ReminderForLoadShedding extends Activity {
         mLvOfReminder = (ListView) findViewById(R.id.selectedReminders);
         mListOfReminder = new ArrayList<>();
         mListOfReminder.addAll(mReminderListDbTable.getAllReminders());
+        Collections.sort(mListOfReminder);
         mReminderAdapter = new ListOfReminderAdapter(this, mListOfReminder);
         mLvOfReminder.setAdapter(mReminderAdapter);
     }
@@ -112,6 +124,33 @@ public class ReminderForLoadShedding extends Activity {
             mSchduleDbHelper.close();
         super.onDestroy();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // This is called when the Home (Up) button is pressed in the action bar.
+                // Create a simple intent that starts the hierarchical parent activity and
+                // use NavUtils in the Support Package to ensure proper handling of Up.
+                Intent upIntent = new Intent(this, LoadSheddingActivity.class);
+                if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+                    // This activity is not part of the application's task, so create a new task
+                    // with a synthesized back stack.
+                    TaskStackBuilder.from(this)
+                            // If there are ancestor activities, they should be added here.
+                            .addNextIntent(upIntent)
+                            .startActivities();
+                    finish();
+                } else {
+                    // This activity is part of the application's task, so simply
+                    // navigate up to the hierarchical parent activity.
+                    NavUtils.navigateUpTo(this, upIntent);
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private AdapterView.OnItemSelectedListener mAreaSelectedListener = new AdapterView.OnItemSelectedListener() {
 
@@ -137,7 +176,7 @@ public class ReminderForLoadShedding extends Activity {
                 mTimeAdapter.add("Select Time");
                 ArrayList<Utilities.LoadSheddingScheduleData> dailyData;
 
-                dailyData =  mSchduleDbHelper.GetSchedDataForADay( mPositionArea, mPositionDay);
+                dailyData =  mSchduleDbHelper.GetSchedDataForADay( mPositionArea-1, mPositionDay-1);
 
 
                 for( int i=0; i<dailyData.size(); i++ ) {
@@ -218,7 +257,6 @@ public class ReminderForLoadShedding extends Activity {
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Utilities.Logd("onClick for setPositiveButton");
                     if( mRepeatValue != FINAL_INT_REPEAT_NONE ) {
                         DialogFragment newFragment = new TimePickerFragment();
                         newFragment.show(getFragmentManager(), "timePicker");
@@ -231,7 +269,6 @@ public class ReminderForLoadShedding extends Activity {
         private View.OnClickListener mTimeOptionsClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Utilities.Logd("onClick for radioGroup");
                 switch(v.getId()) {
                     case R.id.idOnce:
                         mRepeatValue = FINAL_INT_REPEAT_ONCE;
@@ -270,11 +307,30 @@ public class ReminderForLoadShedding extends Activity {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             mNHour = hourOfDay;
             mNMins = minute;
-            if( mStoredDay >= 0 && mStoredTime >= 0 && mStoredArea >= 0 ) {
-                //TODO: Check if this timing has already been stored
-/*                List<Utilities.LoadSheddingReminderData> listTask = mReminderListDbTable.getAllReminders();
-                for( int i=0; i<listTask.size(); i++ ) {
-                }*/
+            if( !mIsReminderDialog && mStoredDay >= 0 && mStoredTime >= 0 && mStoredArea >= 0 ) {
+                for( int i=0; i<mListOfReminder.size(); i++ ) {
+                    Utilities.Logd("Inside with i= "+i+" size = " + mListOfReminder.size());
+                    Utilities.LoadSheddingReminderData reminderData = mListOfReminder.get(i);
+
+                    if( reminderData.mDay == mStoredDay && reminderData.mAreaNum == mStoredArea ) {
+                        Utilities.Logd("mStoredArea = "+mStoredArea+" mStoredDay= " + mStoredDay+" mStoredTime= "+mStoredTime);
+                        Utilities.LoadSheddingScheduleData schedData = GetLoadSheddingInfo( mStoredArea, mStoredDay, mStoredTime );
+                        if( reminderData.mLoadsheddingInfo.mStartHour == schedData.mStartHour &&
+                                reminderData.mLoadsheddingInfo.mStartMins == schedData.mStartMins ) {
+
+                            if( reminderData.mHourBefore == mNHour && reminderData.mMinsBefore == mNMins ) {
+                                Utilities.showToast(mActivity,"You have already set the alarm for this time.");
+                            } else {
+                                DialogFragment newFragment = new ReminderRepetitionDialog();
+                                newFragment.show(getFragmentManager(), "RepetitionDialog");
+                                mIsReminderDialog = true;
+                            }
+                            //Call dialog fragment
+                            return;
+                        }
+                    }
+                }
+                Utilities.Logd("Before StoredData in onTimeSet()");
                 StoreData();
             }
         }
@@ -287,6 +343,7 @@ public class ReminderForLoadShedding extends Activity {
         reminderData.mAreaNum = mStoredArea;
         reminderData.mDay = mStoredDay;
         reminderData.mReminderFrequency = mRepeatValue;
+        //In database it is stored from 0 to n-1 for area and 0 t0 6 for days.
         reminderData.mLoadsheddingInfo = GetLoadSheddingInfo( reminderData.mAreaNum, reminderData.mDay,
                 mStoredTime);
         reminderData.mHourBefore = mNHour;
@@ -313,8 +370,7 @@ public class ReminderForLoadShedding extends Activity {
     }
 
     public static Utilities.LoadSheddingScheduleData GetLoadSheddingInfo(int areaNum, int day, int positionTime) {
-
-        return mSchduleDbHelper.GetSchedDataForADay(areaNum,day).get(positionTime-1);
+        return mSchduleDbHelper.GetSchedDataForADay(areaNum-1,day-1).get(positionTime-1);
     }
     //ArrayAdapter for list and it's storage
     public class ListOfReminderAdapter extends ArrayAdapter<Utilities.LoadSheddingReminderData> {
@@ -384,5 +440,35 @@ public class ReminderForLoadShedding extends Activity {
             return convertView;
         }
     }
-    //TODO: Call apis to set alarm at the particular time
+
+
+
+    public static class ReminderRepetitionDialog extends DialogFragment implements DialogInterface.OnCancelListener {
+
+        public ReminderRepetitionDialog() {
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mActivity);
+            dialogBuilder.setTitle("Set Reminder?");
+            dialogBuilder.setMessage("You already have set reminder for this load shedding schedule. Do you want to save it again?");
+            dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    StoreData();
+                    mIsReminderDialog = false;
+                }
+            });
+            dialogBuilder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dismiss();
+                }
+            });
+
+            return dialogBuilder.create();
+        }
+    }
+    //TODO: Call apis to set alarm at a particular time
 }

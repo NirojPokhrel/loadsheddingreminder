@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by Niroj Pokhrel on 6/16/2015.
@@ -105,7 +106,7 @@ public class Utilities {
         }
     }
 
-    public static class LoadSheddingReminderData {
+    public static class LoadSheddingReminderData implements Comparable {
 
         public int mID;
         public int mAreaNum;
@@ -138,6 +139,43 @@ public class Utilities {
             mHourBefore = hoursBefore;
             mMinsBefore = minsBefore;
             mDate = date;
+        }
+
+        @Override
+        public int compareTo(Object another) {
+            LoadSheddingReminderData reminderData = (LoadSheddingReminderData)another;
+
+            Calendar cal = Calendar.getInstance();
+            //What is the value of days of week 0 t0 6 ??
+            int day = cal.get(Calendar.DAY_OF_WEEK);
+            int tempDayThis, tempDayAnother;
+
+            tempDayThis = mDay;
+            tempDayAnother = reminderData.mDay;
+
+            if( tempDayThis < day )
+                tempDayThis = tempDayThis + 7;
+            if( tempDayAnother < day )
+                tempDayAnother = tempDayAnother + 7;
+
+            if( tempDayThis < tempDayAnother ) {
+                return -1;
+            } else if( tempDayThis > tempDayAnother ) {
+                return 1;
+            } else {
+                if( this.mLoadsheddingInfo.mStartHour < reminderData.mLoadsheddingInfo.mStartHour ) {
+                    return -1;
+                } else if( this.mLoadsheddingInfo.mStartHour > reminderData.mLoadsheddingInfo.mStartHour ) {
+                    return 1;
+                } else {
+                    if( this.mLoadsheddingInfo.mStartMins < reminderData.mLoadsheddingInfo.mStartMins ) {
+                        return -1;
+                    } else if( this.mLoadsheddingInfo.mStartMins > reminderData.mLoadsheddingInfo.mStartMins ) {
+                        return 1;
+                    } else
+                        return 0;
+                }
+            }
         }
     }
 

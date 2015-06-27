@@ -1,0 +1,1 @@
+Bugs:i. When selected Saturday in Create Reminder application crashes. Probable cause is array overflow exception. (done)ii. Data are not arranged properly. The way we select and get data that should be arranged in proper fashion too.iii. Set alarm programmatically.iv. Start the alarm service programmatically.
