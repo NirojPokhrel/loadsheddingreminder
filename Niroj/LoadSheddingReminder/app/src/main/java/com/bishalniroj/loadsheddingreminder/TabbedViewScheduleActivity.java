@@ -44,7 +44,7 @@ import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelpe
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-/* TODO: Save the previous area selected by user so that he doesn't have to swipe every time he opens application
+/* TODO: Design part has to be improved a lot. Please do that !!!
  */
 public class TabbedViewScheduleActivity extends FragmentActivity {
 
