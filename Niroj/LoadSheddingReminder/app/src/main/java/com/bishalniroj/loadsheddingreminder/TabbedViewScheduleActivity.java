@@ -41,6 +41,7 @@ import android.widget.TextView;
 
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -91,7 +92,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         mViewPager.setCurrentItem(currentItem);
 
         //DATABASE
-        mScheduleDbHelper = LoadSheddingScheduleDbHelper.GetInstance(this);
+        mScheduleDbHelper = LoadSheddingScheduleDbHelper.GetInstance(this, false);
         mScheduleDbHelper.open();
     }
 
@@ -185,6 +186,8 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
             for( int i=0; i<7; i++ ) {
                 mLoadSheddingList.add(mScheduleDbHelper.GetSchedDataForADay(areaNum, i));
             }
+            //Get the data based upon singleton class for info storage
+            //mLoadSheddingList = DataContainer.getData(areaNum);
             mListAdapter = new ScheduleInfoAdapter( mActivity, mLoadSheddingList);
 
             mListView = (ListView)rootView.findViewById(R.id.listOfScheduleForEachDay);
