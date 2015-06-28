@@ -42,9 +42,15 @@ public class LoadSheddingActivity extends Activity {
         Intent alarmIntent = new Intent(this, BroadCastReceivers.class);
         alarmIntent.setAction(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION);
         databaseUpdateIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
-        //start the alarm
-        startLoadSheddingDownloadAlarm();
 
+        boolean isAlarmSet = (PendingIntent.getBroadcast(this, 0,
+                new Intent(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION),
+                PendingIntent.FLAG_NO_CREATE) != null);
+        if (!isAlarmSet) {
+            //start the alarm
+            Utilities.Logd("Scheduling the alarm for periodic database update");
+            startLoadSheddingDownloadAlarm();
+        }
         mPlayerList.run();
     }
 
