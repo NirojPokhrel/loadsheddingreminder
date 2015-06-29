@@ -1,7 +1,10 @@
 package com.bishalniroj.loadsheddingreminder;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.Fragment;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,11 +15,16 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
+import com.bishalniroj.loadsheddingreminder.service.BroadCastReceivers;
+import com.bishalniroj.loadsheddingreminder.service.LoadSheddingService;
+
+import java.util.Calendar;
 
 
 public class LoadSheddingActivity extends Activity {
     private static Context mContext;
     private LoadSheddingScheduleDbHelper mDbHelper;
+    private static PendingIntent databaseUpdateIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +37,20 @@ public class LoadSheddingActivity extends Activity {
                     .add(R.id.container, new LandingPageFragment(), "LoadSheddingFragment")
                     .commit();
         }
+
+        //Pending Intent that will broadcast for database update
+        Intent alarmIntent = new Intent(this, BroadCastReceivers.class);
+        alarmIntent.setAction(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION);
+        databaseUpdateIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+
+        boolean isAlarmSet = (PendingIntent.getBroadcast(this, 0,
+                new Intent(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION),
+                PendingIntent.FLAG_NO_CREATE) != null);
+        if (!isAlarmSet) {
+            //start the alarm
+            Utilities.Logd("Scheduling the alarm for periodic database update");
+            startLoadSheddingDownloadAlarm();
+        }
         mPlayerList.run();
     }
 
@@ -37,8 +59,13 @@ public class LoadSheddingActivity extends Activity {
 
         @Override
         public void run() {
-            mDbHelper = LoadSheddingScheduleDbHelper.GetInstance(mContext);
+            mDbHelper = LoadSheddingScheduleDbHelper.GetInstance(mContext, true);
             mDbHelper.open();
+
+            //run the loadshedding service to start the download of data in the database
+            if(!isMyServiceRunning(LoadSheddingService.class)) {
+                startService(new Intent(mContext, LoadSheddingService.class));
+            }
         }
 
     };
@@ -144,4 +171,31 @@ public class LoadSheddingActivity extends Activity {
                 break;
         }
     }
+
+    /*
+    To check if a service is running or not
+    Ref: http://stackoverflow.com/questions/600207/how-to-check-if-a-service-is-running-on-android
+     */
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+    Start alarm service
+     */
+    private void startLoadSheddingDownloadAlarm() {
+        Calendar calendar = Calendar.getInstance();
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        int interval = 1000 * 60 * 60 * 24; //in milliseconds
+        //Repeat every 24 hours
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                interval, databaseUpdateIntent);
+    }
+
 }

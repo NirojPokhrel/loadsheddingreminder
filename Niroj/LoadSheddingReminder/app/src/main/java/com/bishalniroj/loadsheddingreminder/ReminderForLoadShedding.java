@@ -104,7 +104,7 @@ public class ReminderForLoadShedding extends Activity {
         //DATABASE
         mReminderListDbTable = new LoadSheddingReminderListTable(this);
         mReminderListDbTable.open();
-        mSchduleDbHelper = LoadSheddingScheduleDbHelper.GetInstance(this);
+        mSchduleDbHelper = LoadSheddingScheduleDbHelper.GetInstance(this, false);
         mSchduleDbHelper.open();
 
         //List of Reminder

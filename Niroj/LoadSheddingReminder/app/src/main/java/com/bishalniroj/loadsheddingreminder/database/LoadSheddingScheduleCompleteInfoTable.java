@@ -59,7 +59,12 @@ public class LoadSheddingScheduleCompleteInfoTable {
 	
 	public long insertScheduleInfo( Utilities.LoadSheddingCompleteSchedule schedData ) {
 		ContentValues content;
-		
+        /*
+		Utilities.Logd("Recieved Database storage request");
+        Utilities.Logd("Area:" + schedData.mAreaNum + "Day: "+ schedData.mDay);
+        Utilities.Logd("Data= "+ "Hour:" + schedData.mLoadsheddingInfo.mStartHour+ "Min:"+
+                schedData.mLoadsheddingInfo.mStartMins);
+        */
 		content = new ContentValues();
 		content.put(COLUMN_AREA_NUM, schedData.mAreaNum);
         content.put(COLUMN_DAY_NUM, schedData.mDay);
@@ -83,7 +88,20 @@ public class LoadSheddingScheduleCompleteInfoTable {
 		}
 		return listTask;
 	}
-	
+
+    //TODO: Directly query the table
+    public ArrayList<Utilities.LoadSheddingScheduleData> getScheduleForADayAndArea(int area, int day) {
+        ArrayList<Utilities.LoadSheddingScheduleData> daySchedule = new ArrayList<>();
+        //get all the schedule info
+        List<Utilities.LoadSheddingCompleteSchedule> allSchedule = getAllScheduleInfo();
+        for (Utilities.LoadSheddingCompleteSchedule compSchedule:allSchedule) {
+            if(compSchedule.mAreaNum == area && compSchedule.mDay == day) {
+                daySchedule.add(compSchedule.mLoadsheddingInfo);
+            }
+        }
+        return daySchedule;
+    }
+
 	private Utilities.LoadSheddingCompleteSchedule cursorToTaskData( Cursor cursor ) {
         Utilities.LoadSheddingCompleteSchedule schedData = new Utilities.LoadSheddingCompleteSchedule();
         Utilities.LoadSheddingScheduleData loadSheddingInfo = new Utilities.LoadSheddingScheduleData();
