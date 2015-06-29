@@ -43,6 +43,7 @@ public class LoadSheddingActivity extends Activity {
         alarmIntent.setAction(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION);
         databaseUpdateIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
 
+        //From:http://stackoverflow.com/questions/4556670/how-to-check-if-alarmmanager-already-has-an-alarm-set
         boolean isAlarmSet = (PendingIntent.getBroadcast(this, 0,
                 new Intent(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION),
                 PendingIntent.FLAG_NO_CREATE) != null);

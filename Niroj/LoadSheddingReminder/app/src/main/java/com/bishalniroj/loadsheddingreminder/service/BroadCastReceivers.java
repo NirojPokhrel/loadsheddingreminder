@@ -17,6 +17,22 @@ public class BroadCastReceivers extends BroadcastReceiver{
             context.startService(intentNew);
         }
 
+        if( intent.getAction().equals(Utilities.REMINDER_BROADCAST_RECEIVER_ACTION)) {
+            Utilities.Logd("Reminder Alarm successfully received");
+            //DO the action for reminder
+            onReminderReceiveAction(context);
+        }
     }
+
+    /*
+    Action done as reminder. Options, Simple Toast, A Notification in bar, Vibrate, Sound, User-def
+    ined functionality
+     */
+    public void onReminderReceiveAction(Context context) {
+        //Raise a toast as reminder
+        Utilities.showToast(context,"REMINDER.YOU SET IT! DONT BLAME ME");
+    }
+
+
 
 }

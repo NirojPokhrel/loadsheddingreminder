@@ -53,6 +53,7 @@ public class Utilities {
     public static final String INTENT_DATA_HOUR = "hour";
     public static final String INTENT_DATA_MIN = "min";
     public static final String LOADSHEDDING_BROADCAST_RECEIVER_ACTION = "com.niroj.alarmmangertest.ACTION";
+    public static final String REMINDER_BROADCAST_RECEIVER_ACTION = "com.niroj.alarmmangertest.REMINDER_ACTION";
     public static final String REMINDER_LIST_FILE = "/data/opt/temp/reminderList";
     public static final String SCHEDULE_LIST = "/data/opt/tmp/scheduleList";
 
