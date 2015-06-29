@@ -470,5 +470,6 @@ public class ReminderForLoadShedding extends Activity {
             return dialogBuilder.create();
         }
     }
+
     //TODO: Call apis to set alarm at a particular time
 }

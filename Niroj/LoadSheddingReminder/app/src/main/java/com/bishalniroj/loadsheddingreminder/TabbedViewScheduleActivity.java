@@ -73,6 +73,9 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
         // Set up action bar.
         final ActionBar actionBar = getActionBar();
+/*        if (actionBar != null) {
+            actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar_background));
+        }*/
 
         // Specify that the Home button should show an "Up" caret, indicating that touching the
         // button will take the user one step up in the application's hierarchy.
