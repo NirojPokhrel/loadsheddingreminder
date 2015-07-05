@@ -116,33 +116,9 @@ public class LoadSheddingScheduleDbHelper {
         return mScheduleInfoTable.getAllScheduleInfo();
     }
 
-    // Think of better way to do it !!!
+    // TODO:
     public void removeRow( int id ) {
     }
-
-    //Fill database
-    /*
-      * Following information is for testing
-      *
-     */
-
-    private void fillDatabase() {
-        Random rand = new Random();
-
-        for (int i = 0; i < 7; i++) {
-            for (int j = 0; j < 7; j++) {
-                for (int k = 0; k < 2; k++) {
-                    mScheduleInfoTable.insertScheduleInfo(new Utilities.LoadSheddingCompleteSchedule
-                            (i, j, new Utilities.LoadSheddingScheduleData(rand.nextInt(24), rand.nextInt(60),
-                                    rand.nextInt(24), rand.nextInt(60))));
-                }
-            }
-        }
-    }
-
-    /*
-    This is for testing with real data
-     */
 
     //fill database with real data
     public void fillDatabaseReal(ArrayList<ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>>

@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
@@ -56,20 +57,22 @@ public class LoadSheddingActivity extends Activity {
                     .commit();
         }
 
-        if( !IsAppRunningForFirstTime() )
+        if (!IsAppRunningForFirstTime()) {
             mPlayerList.run();
+        }
     }
+
     public boolean mIsOnResumeAfterOnCreate = true;
 
     @Override
     public void onResume() {
         super.onResume();
         Utilities.Logd("onResume Called");
-        if( mIsOnResumeAfterOnCreate ) {
+        if (mIsOnResumeAfterOnCreate) {
             mIsOnResumeAfterOnCreate = false;
             return;
         }
-        if( sIsAlertContext ) {
+        if (sIsAlertContext) {
             onActivityResult_test(FINAL_ACTIVITY_RESULT_WIFI, RESULT_OK, null);
             sIsAlertContext = false;
         }
@@ -83,11 +86,6 @@ public class LoadSheddingActivity extends Activity {
             Utilities.Logd("Runnable is running");
             mDbHelper = LoadSheddingScheduleDbHelper.GetInstance(mContext, true);
             mDbHelper.open();
-
-            //run the loadshedding service to start the download of data in the database
-            if(!isMyServiceRunning(LoadSheddingService.class)) {
-                startService(new Intent(mContext, LoadSheddingService.class));
-            }
         }
 
     };
@@ -96,11 +94,13 @@ public class LoadSheddingActivity extends Activity {
     public void onDestroy() {
         super.onDestroy();
     }
+
     /**
      * A placeholder fragment containing a simple view.
      */
     public static class LandingPageFragment extends Fragment {
         private Button mBtnAdjustReminder, mBtnViewSchedule;
+        private ProgressBar mSpinner;
 
         public LandingPageFragment() {
         }
@@ -115,27 +115,24 @@ public class LoadSheddingActivity extends Activity {
             mBtnAdjustReminder.setOnClickListener(mOnClickListener);
             mBtnViewSchedule.setOnClickListener(mOnClickListener);
 
+            mSpinner = (ProgressBar) rootView.findViewById(R.id.progressBar);
+            mSpinner.setVisibility(View.GONE);
+
             return rootView;
         }
 
         private View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
-             public void onClick(View view) {
+            public void onClick(View view) {
                 Intent intent;
-                switch(view.getId()) {
- /*                   case R.id.selectArea:
-                        Utilities.Logd("Clicked select area");
-                        intent = new Intent( mContext, SelectArea.class );
-                        startActivityForResult(intent, Utilities.REQUEST_CODE_SELECT_AREA);
-                        break;*/
+                switch (view.getId()) {
                     case R.id.adjustReminder: {
-                        //intent = new Intent( mContext, CustomTimePicker.class );
-                        intent = new Intent( mContext, ReminderForLoadShedding.class );
+                        intent = new Intent(mContext, ReminderForLoadShedding.class);
                         startActivity(intent);
                         break;
                     }
                     case R.id.viewSchedule:
-                        intent = new Intent( mContext, TabbedViewScheduleActivity.class );
+                        intent = new Intent(mContext, TabbedViewScheduleActivity.class);
                         startActivity(intent);
                         break;
                     default:
@@ -172,13 +169,13 @@ public class LoadSheddingActivity extends Activity {
                 interval, databaseUpdateIntent);
     }
 
-    private boolean IsAppRunningForFirstTime(){
+    private boolean IsAppRunningForFirstTime() {
         SharedPreferences sharedPref = getSharedPreferences(Utilities.SHARED_PREFERENCES, Context.MODE_PRIVATE);
         boolean isFirstTime = sharedPref.getBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, true);
-        if( isFirstTime ) {
+        if (isFirstTime) {
             //Check for the internet connectivity
             //Start the service and register for pending intent
-            if(!hasActiveInternetConnection()) {
+            if (!hasActiveInternetConnection()) {
                 //Start
                 DialogFragment newFragment = new InternetConnectionChoiceDialog();
                 newFragment.show(getFragmentManager(), "RepetitionDialog");
@@ -240,7 +237,7 @@ public class LoadSheddingActivity extends Activity {
             alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Utilities.showToast(mContext,"Closing!!!NO INTERNET CONNECTION");
+                    Utilities.showToast(mContext, "Closing!!!NO INTERNET CONNECTION");
                     getActivity().finish();
                 }
             });
@@ -255,11 +252,11 @@ public class LoadSheddingActivity extends Activity {
             });
 
             alertBuilder.setNeutralButton("Use Cellular", new DialogInterface.OnClickListener() {
-                //TODO: How the fuck can the data usage page be launched ? No straight forward method needs to be checked.
+                //TODO: How the fuck can the data usage page be launched directly ? No straight forward method needs to be checked.
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Intent intent = new Intent(Settings.ACTION_SETTINGS);
-                    startActivityForResult(intent, FINAL_ACTIVITY_RESULT_CELLULAR );
+                    startActivityForResult(intent, FINAL_ACTIVITY_RESULT_CELLULAR);
                     dismiss();
 
                 }
@@ -272,16 +269,15 @@ public class LoadSheddingActivity extends Activity {
     }
 
 
-
-   //@Override
-    public void onActivityResult_test(int requestCode, int resultCode, Intent data ) {
+    //@Override
+    public void onActivityResult_test(int requestCode, int resultCode, Intent data) {
         Utilities.Logd("onActivityResult");
-        if( requestCode == FINAL_ACTIVITY_RESULT_WIFI || requestCode == FINAL_ACTIVITY_RESULT_CELLULAR ) {
-            if( resultCode == RESULT_OK ) {
+        if (requestCode == FINAL_ACTIVITY_RESULT_WIFI || requestCode == FINAL_ACTIVITY_RESULT_CELLULAR) {
+            if (resultCode == RESULT_OK) {
                 //Give sometime for internet connection
                 mHandler.sendEmptyMessageDelayed(MESSAGE_START_SERVICE, 1000);
             } else {
-                Utilities.showToast(mContext,"CLOSING!!!Unable to turn on internet");
+                Utilities.showToast(mContext, "CLOSING!!!Unable to turn on internet");
                 finish();
             }
         }
@@ -290,40 +286,44 @@ public class LoadSheddingActivity extends Activity {
     private Handler mHandler = new Handler() {
         //Try for 5 times
         private int mRetryCount = 0;
+
         @Override
         public void handleMessage(Message msg) {
-          switch(msg.what) {
-              case MESSAGE_START_SERVICE:
-                  if( hasActiveInternetConnection() ) {
-                      firstTimeInitializations();
-                      break;
-                  }
-                  mRetryCount++;
-                  if( mRetryCount > 5) {
-                      Utilities.showToast(mContext,"CLOSING!!!CANNOT CONNECT TO INTERNET");
-                      ((Activity)mContext).finish();
-                  }
-                  mHandler.sendEmptyMessageDelayed(MESSAGE_START_SERVICE, 1000);
-                  break;
-          }
-      }
+            switch (msg.what) {
+                case MESSAGE_START_SERVICE:
+                    if (hasActiveInternetConnection()) {
+                        firstTimeInitializations();
+                        break;
+                    }
+                    mRetryCount++;
+                    if (mRetryCount > 5) {
+                        Utilities.showToast(mContext, "CLOSING!!!CANNOT CONNECT TO INTERNET");
+                        ((Activity) mContext).finish();
+                    }
+                    mHandler.sendEmptyMessageDelayed(MESSAGE_START_SERVICE, 1000);
+                    break;
+            }
+        }
     };
 
+    //TODO:
     public void firstTimeInitializations() {
-        Utilities.showToast(mContext,"Connected to Internet");
+        Utilities.showToast(mContext, "Connected to Internet");
         //Pending Intent that will broadcast for database update
         Intent alarmIntent = new Intent(mContext, BroadCastReceivers.class);
         alarmIntent.setAction(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION);
         databaseUpdateIntent = PendingIntent.getBroadcast(mContext, 0, alarmIntent, 0);
 
-        boolean isAlarmSet = (PendingIntent.getBroadcast(mContext, 0,
-                new Intent(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION),
-                PendingIntent.FLAG_NO_CREATE) != null);
-        if (!isAlarmSet) {
-            //start the alarm
-            Utilities.Logd("Scheduling the alarm for periodic database update");
-            startLoadSheddingDownloadAlarm();
-        }
+        //boolean isAlarmSet = (PendingIntent.getBroadcast(mContext, 0,
+        //        new Intent(Utilities.LOADSHEDDING_BROADCAST_RECEIVER_ACTION),
+        //        PendingIntent.FLAG_NO_CREATE) != null);
+        //if (!isAlarmSet) {
+        //start the alarm
+        //    Utilities.Logd("Scheduling the alarm for periodic database update");
+        startLoadSheddingDownloadAlarm();
+
+        startService(new Intent(mContext, LoadSheddingService.class));
+        //}
     }
 
     public static final int FINAL_ACTIVITY_RESULT_WIFI = 3;

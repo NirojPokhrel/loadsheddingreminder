@@ -1,6 +1,8 @@
 package com.bishalniroj.loadsheddingreminder;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
@@ -30,6 +32,10 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
     //Database
     private static LoadSheddingScheduleDbHelper mScheduleDbHelper;
 
+    Context mContext;
+    public HttpFetchAndParse(Context ctx) {
+        mContext = ctx;
+    }
 
     public ArrayList<ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>>
     doInBackground(LoadSheddingScheduleDbHelper... params) {
@@ -90,6 +96,15 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
         */
         //save to the database
         mScheduleDbHelper.fillDatabaseReal(sData);
+
+        //TODO: Pandey sorry for hacking around your codes !!!Please check if not appropriate please find some other places
+        SharedPreferences sharedPref = mContext.getSharedPreferences(Utilities.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        boolean isFirstTime = sharedPref.getBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, true);
+        if( isFirstTime ) {
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, false);
+                editor.commit();
+        }
 
     };
 

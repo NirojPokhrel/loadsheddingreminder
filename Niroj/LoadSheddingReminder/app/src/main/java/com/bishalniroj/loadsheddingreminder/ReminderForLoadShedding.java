@@ -118,10 +118,11 @@ public class ReminderForLoadShedding extends Activity {
 
     @Override
     public void onDestroy() {
-        if( mReminderListDbTable != null )
+        //TODO: Find appropriate way to close the database if needed ???
+/*        if( mReminderListDbTable != null )
             mReminderListDbTable.close();
         if( mSchduleDbHelper != null )
-            mSchduleDbHelper.close();
+            mSchduleDbHelper.close();*/
         super.onDestroy();
     }
 

@@ -49,7 +49,6 @@ import java.util.List;
  */
 public class TabbedViewScheduleActivity extends FragmentActivity {
 
-    private static IDummyClass mDummyDataClass;
     private static Activity mActivity;
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
 
@@ -66,7 +65,6 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         int currentItem = -1;
 
         super.onCreate(savedInstanceState);
-        mDummyDataClass = TestDataClass.GetInstanceOfClass();
         mActivity = this;
         setContentView(R.layout.activity_collection_demo);
 
@@ -74,9 +72,6 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
         // Set up action bar.
         final ActionBar actionBar = getActionBar();
-/*        if (actionBar != null) {
-            actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar_background));
-        }*/
 
         // Specify that the Home button should show an "Up" caret, indicating that touching the
         // button will take the user one step up in the application's hierarchy.

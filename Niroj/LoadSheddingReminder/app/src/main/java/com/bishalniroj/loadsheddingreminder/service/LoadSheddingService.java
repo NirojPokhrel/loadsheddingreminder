@@ -48,7 +48,7 @@ public class LoadSheddingService extends Service {
     }
 
     private void startDownloadThread(LoadSheddingScheduleDbHelper mDbHelper) {
-        new HttpFetchAndParse().execute(mDbHelper);
+        new HttpFetchAndParse(this).execute(mDbHelper);
 
 
     }
