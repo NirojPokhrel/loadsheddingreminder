@@ -217,7 +217,7 @@ public class Utilities {
 
 
     //TODO: Pandey has to call this when there is change in notifications
-    private void sendNotifications( Context context, String strTitle, String strContent, boolean setSound,
+    public static void sendNotifications( Context context, String strTitle, String strContent, boolean setSound,
                                     boolean launchActivity, Class<?> cls ) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context)

@@ -367,7 +367,7 @@ public class ReminderForLoadShedding extends Activity {
         mSpinnerTime.setSelection(0);
 
         //set the alarm
-        setDirectReminderAlarm(cal, reminderData);
+        setReminderAlarm(cal, reminderData);
 
     }
 
@@ -377,6 +377,8 @@ public class ReminderForLoadShedding extends Activity {
         int reqCode = reminderData.mID;
 
         Intent myIntent = new Intent(mActivity, BroadCastReceivers.class);
+        myIntent.putExtra("Before Hours", reminderData.mHourBefore);
+        myIntent.putExtra("Before Mins", reminderData.mMinsBefore);
         myIntent.setAction(Utilities.REMINDER_BROADCAST_RECEIVER_ACTION);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mActivity,
                 reqCode, myIntent, 0);

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.bishalniroj.loadsheddingreminder.ReminderForLoadShedding;
 import com.bishalniroj.loadsheddingreminder.Utilities;
 
 public class BroadCastReceivers extends BroadcastReceiver{
@@ -19,8 +20,10 @@ public class BroadCastReceivers extends BroadcastReceiver{
 
         if( intent.getAction().equals(Utilities.REMINDER_BROADCAST_RECEIVER_ACTION)) {
             Utilities.Logd("Reminder Alarm successfully received");
+            int startHours = intent.getIntExtra("Before Hours", 0);
+            int startMins  = intent.getIntExtra("Before Mins", 0);
             //DO the action for reminder
-            onReminderReceiveAction(context);
+            onReminderReceiveAction(context, startHours, startMins);
         }
     }
 
@@ -28,9 +31,11 @@ public class BroadCastReceivers extends BroadcastReceiver{
     Action done as reminder. Options, Simple Toast, A Notification in bar, Vibrate, Sound, User-def
     ined functionality
      */
-    public void onReminderReceiveAction(Context context) {
-        //Raise a toast as reminder
-        Utilities.showToast(context,"REMINDER.YOU SET IT! DONT BLAME ME");
+    public void onReminderReceiveAction(Context context, int hours, int mins) {
+        Utilities.sendNotifications(context, "LoadShedding Reminder",
+                "Beware the loadshedding is scheduled in  " + "\n" + hours +
+                        " :hours " + mins + " :mins " ,
+                false, false, ReminderForLoadShedding.class);
     }
 
 
