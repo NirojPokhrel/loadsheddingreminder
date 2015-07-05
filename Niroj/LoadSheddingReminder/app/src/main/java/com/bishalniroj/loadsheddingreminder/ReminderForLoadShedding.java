@@ -472,5 +472,4 @@ public class ReminderForLoadShedding extends Activity {
         }
     }
 
-    //TODO: Call apis to set alarm at a particular time
 }
