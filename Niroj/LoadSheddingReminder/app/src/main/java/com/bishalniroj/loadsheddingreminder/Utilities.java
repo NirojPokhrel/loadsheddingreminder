@@ -225,10 +225,10 @@ public class Utilities {
                         .setContentTitle(strTitle)
                         .setContentText(strContent)
                         .setAutoCancel(true);
-        /*
-         * In case setAutoCancel(true) doesn't work use following line
-		 * mBuilder.getNotification().flags |= Notification.FLAG_AUTO_CANCEL;
-		 */
+
+         //In case setAutoCancel(true) doesn't work use following line
+		 builder.getNotification().flags |= Notification.FLAG_AUTO_CANCEL;
+
         if (setSound) {
             AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             switch (am.getRingerMode()) {

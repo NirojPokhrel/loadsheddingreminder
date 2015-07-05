@@ -104,7 +104,9 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
             System.out.println("Schedule Changed: " + scheduleEqual);
             if (!scheduleEqual) {
                 mScheduleDbHelper.fillDatabaseReal(sData);
-                sendNotifications();
+                Utilities.sendNotifications(mContext,"LoadShedding Schedule Changed",
+                 "Old reminders will be useless. Click to add new reminder for the loadshedding.",
+                        false,true, ReminderForLoadShedding.class);
             }
         }
     };

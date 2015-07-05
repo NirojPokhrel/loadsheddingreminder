@@ -35,7 +35,7 @@ public class BroadCastReceivers extends BroadcastReceiver{
         Utilities.sendNotifications(context, "LoadShedding Reminder",
                 "Beware the loadshedding is scheduled in  " + "\n" + hours +
                         " :hours " + mins + " :mins " ,
-                false, false, ReminderForLoadShedding.class);
+                false, false, null);
     }
 
 
