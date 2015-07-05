@@ -24,7 +24,7 @@ public class LoadSheddingScheduleCompleteInfoTable {
 	public static final String COLUMN_END_MINS="endmins";
     public static final String COLUMN_DATE="date";
 
-	public static final String DATABASE_REMINDER_LIST_TABLE_CREATE =
+	public static final String DATABASE_COMPLETE_INFO_TABLE_CREATE =
 	        " CREATE TABLE " + TABLE_SCHEDULE_INFO
 	        + " ( "
 	        +     COLUMN_ID      + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -132,7 +132,7 @@ public class LoadSheddingScheduleCompleteInfoTable {
     }
 
     public void createTable() {
-        mDataBase.execSQL(DATABASE_REMINDER_LIST_TABLE_CREATE);
+        mDataBase.execSQL(DATABASE_COMPLETE_INFO_TABLE_CREATE);
 
     }
 }

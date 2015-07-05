@@ -17,7 +17,6 @@ public class LoadSheddingSQLiteHelper extends SQLiteOpenHelper {
 
 	private LoadSheddingSQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public static LoadSheddingSQLiteHelper getInstance( Context cContext ) {
@@ -34,7 +33,7 @@ public class LoadSheddingSQLiteHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate( SQLiteDatabase database ) {
 		database.execSQL(LoadSheddingReminderListTable.DATABASE_REMINDER_LIST_TABLE_CREATE);
-		//database.execSQL(DailyActivityTable.DATABASE_TASK_LIST_TABLE_CREATE);
+        database.execSQL(LoadSheddingScheduleCompleteInfoTable.DATABASE_COMPLETE_INFO_TABLE_CREATE);
 		//also create another table
 	}
 	
@@ -42,8 +41,9 @@ public class LoadSheddingSQLiteHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Utilities.Logd("Changing from " + oldVersion + " to " + newVersion
 				+ " data will be lost");
+        //TODO: Find the right way to do ?? Dropping the table on upgrade is not the best way to do it.
 		db.execSQL("DROP TABLE IF EXISTS " + LoadSheddingReminderListTable.TABLE_REMINDERLIST);
-		//db.execSQL("DROP TABLE IF EXISTS " + DailyActivityTable.TABLE_TASKLIST);
+        db.execSQL("DROP TABLE IF EXISTS " + LoadSheddingScheduleCompleteInfoTable.TABLE_SCHEDULE_INFO);
 		//drop another table
 		onCreate(db);
 	}
