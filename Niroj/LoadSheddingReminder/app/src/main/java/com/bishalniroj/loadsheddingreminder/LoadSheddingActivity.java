@@ -180,15 +180,16 @@ public class LoadSheddingActivity extends Activity {
                 DialogFragment newFragment = new InternetConnectionChoiceDialog();
                 newFragment.show(getFragmentManager(), "RepetitionDialog");
             } else {
+                Utilities.Logd("Calling first time initialization");
                 firstTimeInitializations();
 /*                SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, false);
                 editor.commit();*/
             }
-
+            Utilities.Logd("App running first time");
             return true;
         }
-
+        Utilities.Logd("This is not the first time app is running");
         return false;
     }
 

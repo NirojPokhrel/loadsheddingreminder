@@ -101,6 +101,7 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
         else {
             //save check if the schedule has changed
             boolean scheduleEqual = isEqualSchedule(mScheduleDbHelper, sData);
+            System.out.println("Schedule Changed: " + scheduleEqual);
             if (!scheduleEqual) {
                 mScheduleDbHelper.fillDatabaseReal(sData);
                 sendNotifications();
