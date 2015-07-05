@@ -21,6 +21,7 @@ import java.util.Calendar;
 public class Utilities {
     public static final String SHARED_PREFERENCES ="com.bishalniroj.loadsheddingreminder.PREFERENCE_KEY" ;
     public static final String SHARED_PREFERENCES_TAB_NUMBER = "tab_number";
+    public static final String SHARED_PREFERENCES_FIRST_TIME = "first_time";
     private static int sAreaNumber;
     private static int sHour, sMins;
 
