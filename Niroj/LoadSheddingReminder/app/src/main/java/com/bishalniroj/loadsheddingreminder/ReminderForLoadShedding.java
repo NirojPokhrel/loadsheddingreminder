@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.AlarmClock;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Html;
@@ -366,12 +367,13 @@ public class ReminderForLoadShedding extends Activity {
         mSpinnerTime.setSelection(0);
 
         //set the alarm
-        setReminderAlarm(cal, reminderData);
+        setDirectReminderAlarm(cal, reminderData);
+
     }
 
     //set alarm with specified request code
     //http://stackoverflow.com/questions/19441679/create-multiple-alarmmanager-for-the-broadcast-receiver
-    public static void setReminderAlarm(Calendar calendar, Utilities.LoadSheddingReminderData reminderData) {
+    private static void setReminderAlarm(Calendar calendar, Utilities.LoadSheddingReminderData reminderData) {
         int reqCode = reminderData.mID;
 
         Intent myIntent = new Intent(mActivity, BroadCastReceivers.class);
@@ -441,27 +443,13 @@ public class ReminderForLoadShedding extends Activity {
         }
     }
 
-    //set alarm with specified request code
-    //http://stackoverflow.com/questions/19441679/create-multiple-alarmmanager-for-the-broadcast-receiver
-    public static void setDirectReminderAlarm(Calendar calendar,
+    //Set the alarm directly using android's api
+    private static void setDirectReminderAlarm(Calendar calendar,
                                               Utilities.LoadSheddingReminderData reminderData) {
         int reqCode = reminderData.mID;
 
-        Intent myIntent = new Intent(mActivity, BroadCastReceivers.class);
-        myIntent.setAction(Utilities.REMINDER_BROADCAST_RECEIVER_ACTION);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mActivity,
-                reqCode, myIntent, 0);
-        AlarmManager manager = (AlarmManager) mActivity
-                .getSystemService(Context.ALARM_SERVICE);
-
         //get the day for which this loadshedding reminder as requested to be scheduled
         int mDay = reminderData.mDay; //1-7 for Sunday-Saturday
-
-        //Get current day, hour and minute to know when to schedule the
-        //alarm
-        int currentDay  = calendar.get(Calendar.DAY_OF_WEEK); //1-7 for Sunday-Saturday
-        int currentHour = calendar.get(Calendar.HOUR_OF_DAY); //24 hour clock
-        int currentMin  = calendar.get(Calendar.MINUTE);
 
         //get the associated loadshedding info
         Utilities.LoadSheddingScheduleData scheduleData = reminderData.mLoadsheddingInfo;
@@ -473,44 +461,40 @@ public class ReminderForLoadShedding extends Activity {
         int mHoursBefore = reminderData.mHourBefore;
         int mMinsBefore  = reminderData.mMinsBefore;
 
-        //delta between Sunday 00:00AM till current time in minutes
-        int deltaCurrent = (currentDay - 1)*24*60 +
-                (currentHour)*60 + currentMin;
-        Utilities.Logd("CurrentDay:"+currentDay+","+currentHour+","+currentMin);
-        Utilities.Logd("deltaCurrent="+deltaCurrent);
-        //delta between Sunday 00:00Am till the loadsheddingschedule data
-        //against which this reminder was stored
-        int deltaLoadSheddingSchedule = ((mDay) -1)*24*60 +
-                (startHour)*60 + startMin;
-        Utilities.Logd("LoadSheddingDay:"+mDay+","+startHour+","+startMin);
-        Utilities.Logd("deltaLoadSheddingSchedule="+deltaLoadSheddingSchedule);
-        //calculate the interval from now until the loadshedding time
-        int deltaNowToLoadSheddingSchedule = (deltaLoadSheddingSchedule -
-                deltaCurrent);
-        //if the loadshedding schedule is in different week add the total
-        //minutes of the week to get it positive
-        if(deltaNowToLoadSheddingSchedule<0) {
-            deltaNowToLoadSheddingSchedule += 10080;
+        //find the absolute time when the alarm has to be set for
+        int absTime = ( startHour*60 + startMin ) - (mHoursBefore*60 + mMinsBefore);
+        if(absTime < 0) {
+            absTime += 24*60;
+            mDay = mDay - 1;
+            //Due to subtraction Sunday should roll back to Saturday
+            if(mDay == 0) {
+                mDay = 7;
+            }
         }
+        int absHour = absTime/60;
+        int absMin  = absTime%60;
 
-        //Now find the actual time until next reminder in minutes
-        deltaNowToLoadSheddingSchedule -= ((mHoursBefore)*60 + mMinsBefore);
-        //further check if it is negative move it until next week
-        if(deltaNowToLoadSheddingSchedule<0) {
-            deltaNowToLoadSheddingSchedule += 10080;
-        }
+        //Message to be displayed when the alarm goes off
+        String alarmMessage = "Reminder!!. There will be a power cut in " + mHoursBefore
+                + " hours and " + mMinsBefore + " minutes.";
 
         //check the reminder request and accordingly set onetime/recurring alarms
         if(reminderData.mReminderFrequency == FINAL_INT_REPEAT_ONCE) {
-            Utilities.Logd("Setting Reminder for min from now:" + deltaNowToLoadSheddingSchedule);
-            manager.set(AlarmManager.RTC,
-                    calendar.getTimeInMillis()+deltaNowToLoadSheddingSchedule*60*1000,
-                    pendingIntent);
+            Intent setNewAlarm = new Intent(AlarmClock.ACTION_SET_ALARM);
+            setNewAlarm.putExtra(AlarmClock.EXTRA_HOUR, absHour);
+            setNewAlarm.putExtra(AlarmClock.EXTRA_MINUTES, absMin);
+            //TODO How to enforce it go only once
+            setNewAlarm.putExtra(AlarmClock.EXTRA_DAYS, mDay);
+            setNewAlarm.putExtra(AlarmClock.EXTRA_MESSAGE,alarmMessage );
+            mActivity.startActivity(setNewAlarm);
         }
         else {
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis()+deltaNowToLoadSheddingSchedule*60*1000,
-                    AlarmManager.INTERVAL_DAY*7, pendingIntent);
+            Intent setNewAlarm = new Intent(AlarmClock.ACTION_SET_ALARM);
+            setNewAlarm.putExtra(AlarmClock.EXTRA_HOUR, absHour);
+            setNewAlarm.putExtra(AlarmClock.EXTRA_MINUTES, absMin);
+            setNewAlarm.putExtra(AlarmClock.EXTRA_DAYS, mDay);
+            setNewAlarm.putExtra(AlarmClock.EXTRA_MESSAGE,alarmMessage );
+            mActivity.startActivity(setNewAlarm);
         }
     }
 
