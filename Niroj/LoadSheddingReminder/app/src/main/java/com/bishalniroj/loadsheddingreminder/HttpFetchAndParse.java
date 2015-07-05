@@ -1,6 +1,5 @@
 package com.bishalniroj.loadsheddingreminder;
 
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -18,7 +17,7 @@ import org.jsoup.nodes.*;
 import org.jsoup.select.*;
 
 public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
-       Void,
+        Void,
         ArrayList<ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>>> {
     //Hashmap to store the loadshedding shedule
     //Key: Group Number, Value: List of Strings, with each string for each day
@@ -36,6 +35,7 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
     public HttpFetchAndParse(Context ctx) {
         mContext = ctx;
     }
+
 
     public ArrayList<ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>>
     doInBackground(LoadSheddingScheduleDbHelper... params) {
@@ -72,7 +72,7 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
                     mAreaData.add(daySchedule);
                 }
                 mScheduleData.add(mAreaData);
-                }
+            }
         }
         catch(Exception e )
         {
@@ -83,30 +83,72 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
     }
 
     public void onPostExecute(ArrayList<ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>> sData) {
-        //debug print
-        /*
-        Utilities.Logd("Parsed Http Data");
-        for (ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>> areaData : sData) {
-            for (ArrayList<Utilities.LoadSheddingScheduleData> dayData : areaData) {
-                for (Utilities.LoadSheddingScheduleData sD : dayData) {
-                    printLoadSheddingSchedule(sD);
-                }
-            }
+
+        //save check if the schedule has changed
+        boolean scheduleEqual =  isEqualSchedule(mScheduleDbHelper, sData);
+        if (!scheduleEqual) {
+            mScheduleDbHelper.fillDatabaseReal(sData);
         }
-        */
-        //save to the database
-        mScheduleDbHelper.fillDatabaseReal(sData);
 
         //TODO: Pandey sorry for hacking around your codes !!!Please check if not appropriate please find some other places
         SharedPreferences sharedPref = mContext.getSharedPreferences(Utilities.SHARED_PREFERENCES, Context.MODE_PRIVATE);
         boolean isFirstTime = sharedPref.getBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, true);
         if( isFirstTime ) {
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, false);
-                editor.commit();
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, false);
+            editor.commit();
         }
-
     };
+
+    //check if existing schedule and newly parsed schedule differ
+    public boolean isEqualSchedule(LoadSheddingScheduleDbHelper mScheduleDbHelper,
+                                   ArrayList<ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>> newList) {
+
+        //for each area
+        for (int i=0; i<newList.size(); i++) {
+            ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>> areaSched = newList.get(i);
+            //for each day
+            for(int j=0; j<areaSched.size(); j++) {
+                ArrayList<Utilities.LoadSheddingScheduleData> areaDaySched = areaSched.get(j);
+                //get the existing data for given area and day
+                ArrayList<Utilities.LoadSheddingScheduleData> existingAreaDaySched =
+                        mScheduleDbHelper.GetSchedDataForADay(i,j);
+
+                if( (existingAreaDaySched.size() == 0) ||
+                        (existingAreaDaySched.size() != areaDaySched.size()) ) {
+                    //no data exists or unequal data exist so the equality must be false
+                    return false;
+                }
+                else {
+                    for (int k = 0; k < areaDaySched.size(); k++) {
+                        Utilities.LoadSheddingScheduleData oldData = existingAreaDaySched.get(k);
+                        Utilities.LoadSheddingScheduleData newData = areaDaySched.get(k);
+                        if (!isEqualLoadSheddingSchedule(newData, oldData)) {
+                            return false;
+                        }
+
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+    Returns true/false if two Utilities.LoadsheddingSchedule are equal or not
+     */
+    public boolean isEqualLoadSheddingSchedule (Utilities.LoadSheddingScheduleData newData,
+                                                Utilities.LoadSheddingScheduleData oldData) {
+        if ((newData.mStartHour == oldData.mStartHour) &&
+                (newData.mStartMins == oldData.mStartMins) &&
+                (newData.mEndHour == oldData.mEndHour) &&
+                (newData.mEndMins == oldData.mEndMins)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
     /*
      * Parser for loadshedding schedule available from battigayo.com
