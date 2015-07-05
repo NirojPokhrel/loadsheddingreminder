@@ -1,6 +1,13 @@
 package com.bishalniroj.loadsheddingreminder;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -206,6 +213,52 @@ public class Utilities {
     public static class DaySchedulingInfo {
         public int mDay;
         public ArrayList<LoadSheddingScheduleData> mDailySched;
+    }
+
+
+    //TODO: Pandey has to call this when there is change in notifications
+    private void sendNotifications( Context context, String strTitle, String strContent, boolean setSound,
+                                    boolean launchActivity, Class<?> cls ) {
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(strTitle)
+                        .setContentText(strContent)
+                        .setAutoCancel(true);
+        /*
+         * In case setAutoCancel(true) doesn't work use following line
+		 * mBuilder.getNotification().flags |= Notification.FLAG_AUTO_CANCEL;
+		 */
+        if (setSound) {
+            AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            switch (am.getRingerMode()) {
+                case AudioManager.RINGER_MODE_SILENT:
+                    Utilities.Logd("Silent mode");
+                    break;
+                case AudioManager.RINGER_MODE_VIBRATE:
+                    builder.setDefaults(Notification.DEFAULT_VIBRATE);
+                    Utilities.Logd("Vibrate mode");
+                    break;
+                case AudioManager.RINGER_MODE_NORMAL:
+                    builder.setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND);
+                    Utilities.Logd("Normal mode");
+                    break;
+            }
+        }
+
+        if( launchActivity ) {
+
+            Intent resultIntent = new Intent(context, cls); //cls == ReminderForLoadShedding.class, any class(activity we want to launch)
+
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+            stackBuilder.addParentStack(cls);
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(pendingIntent);
+        }
+
+        NotificationManager notifyMgr = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+        notifyMgr.notify(1, builder.build());
     }
 
     public static final int SUNDAY = 1;
