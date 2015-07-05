@@ -48,9 +48,8 @@ public class LoadSheddingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Utilities.Logd("Received start id " + startId + ": " + intent);
-        // We want this service to continue running until it is explicitly
-        // stopped, so return sticky.
-        return START_STICKY;
+        // We want to run this service only once when invoked
+        return START_NOT_STICKY;
     }
 
     private void startDownloadThread(LoadSheddingScheduleDbHelper mDbHelper) {
