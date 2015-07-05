@@ -243,6 +243,8 @@ public class Utilities {
                     builder.setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND);
                     Utilities.Logd("Normal mode");
                     break;
+                default:
+                    Utilities.Logd("Default");
             }
         }
 
@@ -255,6 +257,8 @@ public class Utilities {
             stackBuilder.addNextIntent(resultIntent);
             PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setContentIntent(pendingIntent);
+        } else {
+            builder.setContentIntent(PendingIntent.getActivity(context, 0, new Intent(), 0));
         }
 
         NotificationManager notifyMgr = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
