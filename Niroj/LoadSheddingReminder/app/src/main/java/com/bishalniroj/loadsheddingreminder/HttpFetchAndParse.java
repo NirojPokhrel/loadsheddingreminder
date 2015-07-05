@@ -1,8 +1,13 @@
 package com.bishalniroj.loadsheddingreminder;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.v4.app.NotificationCompat;
 
 import com.bishalniroj.loadsheddingreminder.database.LoadSheddingScheduleDbHelper;
 
@@ -84,19 +89,22 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
 
     public void onPostExecute(ArrayList<ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>> sData) {
 
-        //save check if the schedule has changed
-        boolean scheduleEqual =  isEqualSchedule(mScheduleDbHelper, sData);
-        if (!scheduleEqual) {
-            mScheduleDbHelper.fillDatabaseReal(sData);
-        }
 
-        //TODO: Pandey sorry for hacking around your codes !!!Please check if not appropriate please find some other places
         SharedPreferences sharedPref = mContext.getSharedPreferences(Utilities.SHARED_PREFERENCES, Context.MODE_PRIVATE);
         boolean isFirstTime = sharedPref.getBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, true);
         if( isFirstTime ) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, false);
             editor.commit();
+            mScheduleDbHelper.fillDatabaseReal(sData);
+        }
+        else {
+            //save check if the schedule has changed
+            boolean scheduleEqual = isEqualSchedule(mScheduleDbHelper, sData);
+            if (!scheduleEqual) {
+                mScheduleDbHelper.fillDatabaseReal(sData);
+                sendNotifications();
+            }
         }
     };
 
@@ -207,5 +215,28 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
      */
     public static void printLoadSheddingSchedule(Utilities.LoadSheddingScheduleData sD) {
         Utilities.Logd(Arrays.toString(new int[]{sD.mStartHour, sD.mStartMins, sD.mEndHour, sD.mEndMins}));
+    }
+
+    private void sendNotifications() {
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("LoadShedding Schedule Changed")
+                        .setContentText("Old reminders will be useless. Click to add new reminder for the loadshedding.")
+                        .setAutoCancel(true);
+		/*
+		 * In case setAutoCancel(true) doesn't work use following line
+		 * mBuilder.getNotification().flags |= Notification.FLAG_AUTO_CANCEL;
+		 */
+        Intent resultIntent = new Intent( mContext, ReminderForLoadShedding.class);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
+        stackBuilder.addParentStack(ReminderForLoadShedding.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+        NotificationManager notifyMgr = (NotificationManager)
+                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notifyMgr.notify( 1, builder.build());
     }
 }
