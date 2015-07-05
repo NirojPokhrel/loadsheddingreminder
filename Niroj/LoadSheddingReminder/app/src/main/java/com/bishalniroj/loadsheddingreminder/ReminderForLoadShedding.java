@@ -122,10 +122,10 @@ public class ReminderForLoadShedding extends Activity {
 
     @Override
     public void onDestroy() {
-        if( mReminderListDbTable != null )
+ /*       if( mReminderListDbTable != null )
             mReminderListDbTable.close();
         if( mSchduleDbHelper != null )
-            mSchduleDbHelper.close();
+            mSchduleDbHelper.close();*/
         super.onDestroy();
     }
 
@@ -616,9 +616,6 @@ public class ReminderForLoadShedding extends Activity {
             return dialogBuilder.create();
         }
     }
-    //TODO: Call apis to set alarm at a particular time
-
-
 }
 
 
