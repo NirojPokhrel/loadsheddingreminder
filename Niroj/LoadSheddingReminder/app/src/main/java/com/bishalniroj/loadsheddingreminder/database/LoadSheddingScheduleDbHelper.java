@@ -81,6 +81,7 @@ public class LoadSheddingScheduleDbHelper {
 	
 	private void listAllSchedInfo() {
 		List<Utilities.LoadSheddingCompleteSchedule> listTask = mScheduleInfoTable.getAllScheduleInfo();
+
         for( int i=0; i<listTask.size(); i++ ) {
             Utilities.LoadSheddingCompleteSchedule schedData = listTask.get(i);
             if( schedData.mAreaNum > Utilities.MAXIMUM_NUMBER_OF_AREA ) {

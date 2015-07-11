@@ -81,6 +81,7 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
         }
         catch(Exception e )
         {
+            mScheduleData = null;
             Utilities.Logd("IO Exception Thrown!");
         }
 

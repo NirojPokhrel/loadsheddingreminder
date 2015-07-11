@@ -50,7 +50,7 @@ import java.util.List;
 public class TabbedViewScheduleActivity extends FragmentActivity {
 
     private static Activity mActivity;
-    DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
+    GroupListPagerAdapter mGroupListPagerAdapter;
 
     ViewPager mViewPager;
 
@@ -59,7 +59,6 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
     //
     private SharedPreferences.Editor mPrefEditor;
-    private static int mSelectedTab;
 
     public void onCreate(Bundle savedInstanceState) {
         int currentItem = -1;
@@ -68,7 +67,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
         mActivity = this;
         setContentView(R.layout.activity_collection_demo);
 
-        mDemoCollectionPagerAdapter = new DemoCollectionPagerAdapter(getSupportFragmentManager());
+        mGroupListPagerAdapter = new GroupListPagerAdapter(getSupportFragmentManager());
 
         // Set up action bar.
         final ActionBar actionBar = getActionBar();
@@ -83,7 +82,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
         // Set up the ViewPager, attaching the adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+        mViewPager.setAdapter(mGroupListPagerAdapter);
         currentItem = sharedPref.getInt(Utilities.SHARED_PREFERENCES_TAB_NUMBER, -1);
         Utilities.Logd("currentItem = "+currentItem);
         currentItem = currentItem == -1? 0:currentItem;
@@ -122,29 +121,31 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
 
     @Override
     public void onStop() {
-        mPrefEditor.putInt(Utilities.SHARED_PREFERENCES_TAB_NUMBER, mSelectedTab);
+        //TODO: Bug fixes need to be submitted in git
+        mPrefEditor.putInt(Utilities.SHARED_PREFERENCES_TAB_NUMBER, mViewPager.getCurrentItem());
         mPrefEditor.commit();
-        Utilities.Logd("shared onStop called with mSelectedTab "+ mSelectedTab);
         super.onStop();
+        if( mScheduleDbHelper != null ) {
+            mScheduleDbHelper.close();
+        }
     }
 
     /**
      * A {@link android.support.v4.app.FragmentStatePagerAdapter} that returns a fragment
      * representing an object in the collection.
      */
-    public static class DemoCollectionPagerAdapter extends FragmentStatePagerAdapter {
+    public static class GroupListPagerAdapter extends FragmentStatePagerAdapter {
 
-        public DemoCollectionPagerAdapter(FragmentManager fm) {
+        public GroupListPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public Fragment getItem(int i) {
-            Fragment fragment = new DemoObjectFragment();
+            Fragment fragment = new LoadSheddingGroupFragment();
             Bundle args = new Bundle();
-            args.putInt(DemoObjectFragment.ARG_OBJECT, i); // Our object is just an integer :-P
+            args.putInt(LoadSheddingGroupFragment.ARG_OBJECT, i); // Our object is just an integer :-P
             fragment.setArguments(args);
-            mSelectedTab = i;
             return fragment;
         }
 
@@ -163,7 +164,7 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
     /**
      * A dummy fragment representing a section of the app, but that simply displays dummy text.
      */
-    public static class DemoObjectFragment extends Fragment {
+    public static class LoadSheddingGroupFragment extends Fragment {
 
         public static final String ARG_OBJECT = "object";
         private ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>> mLoadSheddingList;
@@ -183,6 +184,8 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
             //For 7 days in a week
             for( int i=0; i<7; i++ ) {
                 mLoadSheddingList.add(mScheduleDbHelper.GetSchedDataForADay(areaNum, i));
+                if(mLoadSheddingList.get(i).size() > 0)
+                    Utilities.Logd(""+(mLoadSheddingList.get(i)).get(0));
             }
             //Get the data based upon singleton class for info storage
             //mLoadSheddingList = DataContainer.getData(areaNum);

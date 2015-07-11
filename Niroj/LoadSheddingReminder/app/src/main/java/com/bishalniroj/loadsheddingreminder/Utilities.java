@@ -203,6 +203,17 @@ public class Utilities {
             mDay = day;
             mLoadsheddingInfo = sched;
         }
+
+        public String toString() {
+            String str = "";
+
+            str = "Area Num = " + mAreaNum;
+            str += " Day = " + mDay;
+            str += " Start Time: " +mLoadsheddingInfo.mStartHour+" Hr "+mLoadsheddingInfo.mStartMins+" Mins";
+            str += " End Time: " + mLoadsheddingInfo.mEndHour +" Hr " +mLoadsheddingInfo.mEndMins+" Mins";
+
+            return str;
+        }
     }
 
     public static class AreaSchedulingInfo {

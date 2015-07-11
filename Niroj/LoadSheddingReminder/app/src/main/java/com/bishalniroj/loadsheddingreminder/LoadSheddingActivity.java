@@ -84,7 +84,7 @@ public class LoadSheddingActivity extends Activity {
         @Override
         public void run() {
             Utilities.Logd("Runnable is running");
-            mDbHelper = LoadSheddingScheduleDbHelper.GetInstance(mContext, true);
+            mDbHelper = LoadSheddingScheduleDbHelper.GetInstance(mContext, false);
             mDbHelper.open();
         }
 
@@ -166,7 +166,7 @@ public class LoadSheddingActivity extends Activity {
         int interval = 1000 * 60 * 60 * 24; //in milliseconds
         //Repeat every 24 hours
         manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                interval, databaseUpdateIntent);
+                interval, databaseUpdateIntent); //Needs checking, it sends a wakeup clock @ time of registration also ???
     }
 
     private boolean IsAppRunningForFirstTime() {

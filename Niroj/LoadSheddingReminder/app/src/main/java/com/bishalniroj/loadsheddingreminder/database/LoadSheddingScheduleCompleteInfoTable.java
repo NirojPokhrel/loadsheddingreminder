@@ -125,6 +125,7 @@ public class LoadSheddingScheduleCompleteInfoTable {
     }
 
     public void dropTable() {
+        Utilities.Logd("Table is dropped");
         if( mDataBase == null ) {
             Utilities.Loge("Database is null in LoadSheddingScheduleCompleteInfoTable");
         }
@@ -132,6 +133,7 @@ public class LoadSheddingScheduleCompleteInfoTable {
     }
 
     public void createTable() {
+        Utilities.Logd("Table is called");
         mDataBase.execSQL(DATABASE_COMPLETE_INFO_TABLE_CREATE);
 
     }
