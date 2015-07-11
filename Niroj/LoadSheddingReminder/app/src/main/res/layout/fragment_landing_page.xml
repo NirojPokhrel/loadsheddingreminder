@@ -23,12 +23,6 @@
         android:layout_above="@id/anchor"
         android:text="@string/landing_page_option1"
         android:textSize="24sp" />
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:progressDrawable="@drawable/circular_progress_bar"
-        android:layout_above="@+id/adjustReminder" />
 
     <Button
         android:id="@+id/viewSchedule"

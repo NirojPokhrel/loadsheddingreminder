@@ -90,7 +90,10 @@ public class HttpFetchAndParse extends AsyncTask<LoadSheddingScheduleDbHelper,
 
     public void onPostExecute(ArrayList<ArrayList<ArrayList<Utilities.LoadSheddingScheduleData>>> sData) {
 
-
+        if( sData == null ) {
+            Utilities.Logd("Data failed to update. Exiting the service.");
+            return;
+        }
         SharedPreferences sharedPref = mContext.getSharedPreferences(Utilities.SHARED_PREFERENCES, Context.MODE_PRIVATE);
         boolean isFirstTime = sharedPref.getBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, true);
         if( isFirstTime ) {

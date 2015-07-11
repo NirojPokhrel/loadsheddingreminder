@@ -29,6 +29,7 @@ public class Utilities {
     public static final String SHARED_PREFERENCES ="com.bishalniroj.loadsheddingreminder.PREFERENCE_KEY" ;
     public static final String SHARED_PREFERENCES_TAB_NUMBER = "tab_number";
     public static final String SHARED_PREFERENCES_FIRST_TIME = "first_time";
+    public static final int FINAL_INT_TIME_TO_WAIT_FOR_SCHEDULE_UPDATE = 30;
     private static int sAreaNumber;
     private static int sHour, sMins;
 

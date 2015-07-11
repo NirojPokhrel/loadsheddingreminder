@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -58,7 +59,8 @@ public class LoadSheddingActivity extends Activity {
         }
 
         if (!IsAppRunningForFirstTime()) {
-            mPlayerList.run();
+            //mPlayerList.run();
+            Utilities.Logd("App is running for the first time !!!");
         }
     }
 
@@ -79,7 +81,7 @@ public class LoadSheddingActivity extends Activity {
     }
 
     //This one is for smooth running of database when application starts so that it won't delay when request is made
-    private Runnable mPlayerList = new Runnable() {
+/*    private Runnable mPlayerList = new Runnable() {
 
         @Override
         public void run() {
@@ -88,7 +90,7 @@ public class LoadSheddingActivity extends Activity {
             mDbHelper.open();
         }
 
-    };
+    };*/
 
     @Override
     public void onDestroy() {
@@ -100,7 +102,7 @@ public class LoadSheddingActivity extends Activity {
      */
     public static class LandingPageFragment extends Fragment {
         private Button mBtnAdjustReminder, mBtnViewSchedule;
-        private ProgressBar mSpinner;
+        private ProgressDialog mProgressDialog;
 
         public LandingPageFragment() {
         }
@@ -115,8 +117,6 @@ public class LoadSheddingActivity extends Activity {
             mBtnAdjustReminder.setOnClickListener(mOnClickListener);
             mBtnViewSchedule.setOnClickListener(mOnClickListener);
 
-            mSpinner = (ProgressBar) rootView.findViewById(R.id.progressBar);
-            mSpinner.setVisibility(View.GONE);
 
             return rootView;
         }
@@ -125,6 +125,17 @@ public class LoadSheddingActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Intent intent;
+
+                Utilities.Logd("Progress dialog");
+                SharedPreferences sharedPref = mContext.getSharedPreferences(Utilities.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                boolean isFirstTime = sharedPref.getBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, true);
+                if( isFirstTime ) {
+                    mScheduleUpdateHandler.sendEmptyMessageDelayed(view.getId(), 1000);
+                    //Show busy icon bar
+                    mProgressDialog = new ProgressDialog(mContext);
+                    mProgressDialog.setMessage("Downloading Load shedding schedule.");
+                    mProgressDialog.show();
+                }
                 switch (view.getId()) {
                     case R.id.adjustReminder: {
                         intent = new Intent(mContext, ReminderForLoadShedding.class);
@@ -140,6 +151,53 @@ public class LoadSheddingActivity extends Activity {
                 }
             }
         };
+
+        private Handler mScheduleUpdateHandler = new Handler() {
+        private int mCount = 0; // Wait for 30 seconds to get the schedule
+        @Override
+        public void handleMessage( Message msg ) {
+            SharedPreferences sharedPref = mContext.getSharedPreferences(Utilities.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+            boolean isFirstTime = sharedPref.getBoolean(Utilities.SHARED_PREFERENCES_FIRST_TIME, true);
+            Intent intent;
+
+            mCount++;
+            switch(msg.what) {
+                case R.id.adjustReminder:
+                    if( isFirstTime ) {
+                        if( mCount > Utilities.FINAL_INT_TIME_TO_WAIT_FOR_SCHEDULE_UPDATE ) {
+                            Utilities.showToast(mContext, "Closing!!!Cannot get schedule update from internet.");
+                            ((Activity)mContext).finish();
+                            mProgressDialog.dismiss();
+                        }
+                        mScheduleUpdateHandler.sendEmptyMessageDelayed(msg.what, 1000);
+                    } else {
+                        mProgressDialog.dismiss();
+                        intent = new Intent(mContext, ReminderForLoadShedding.class);
+                        startActivity(intent);
+                    }
+                    break;
+                case R.id.viewSchedule:
+                    if( isFirstTime ) {
+                        if( mCount > Utilities.FINAL_INT_TIME_TO_WAIT_FOR_SCHEDULE_UPDATE ) {
+                            Utilities.showToast(mContext, "Closing!!!Cannot get schedule update from internet.");
+                            ((Activity)mContext).finish();
+                            mProgressDialog.dismiss();
+                        }
+                        mScheduleUpdateHandler.sendEmptyMessageDelayed(msg.what, 1000);
+                    } else {
+                        intent = new Intent(mContext, TabbedViewScheduleActivity.class);
+                        startActivity(intent);
+                        mProgressDialog.dismiss();
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+
+          }
+        };
+
     }
 
 
