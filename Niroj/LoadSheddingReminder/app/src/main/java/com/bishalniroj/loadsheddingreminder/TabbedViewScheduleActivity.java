@@ -184,8 +184,6 @@ public class TabbedViewScheduleActivity extends FragmentActivity {
             //For 7 days in a week
             for( int i=0; i<7; i++ ) {
                 mLoadSheddingList.add(mScheduleDbHelper.GetSchedDataForADay(areaNum, i));
-                if(mLoadSheddingList.get(i).size() > 0)
-                    Utilities.Logd(""+(mLoadSheddingList.get(i)).get(0));
             }
             //Get the data based upon singleton class for info storage
             //mLoadSheddingList = DataContainer.getData(areaNum);
