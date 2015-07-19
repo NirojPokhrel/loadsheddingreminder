@@ -223,8 +223,8 @@ public class LoadSheddingActivity extends Activity {
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         int interval = 1000 * 60 * 60 * 24; //in milliseconds
         //Repeat every 24 hours
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                interval, databaseUpdateIntent); //Needs checking, it sends a wakeup clock @ time of registration also ???
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + interval,
+                interval, databaseUpdateIntent); //Fixed to trigger the first alarm in 24 hours
     }
 
     private boolean IsAppRunningForFirstTime() {
